@@ -1,4 +1,4 @@
-import { limitRatio, statutoryLimit } from './limits';
+import { DEFAULT_AC_LIMIT, limitRatio, statutoryLimit } from './limits';
 import { formatRate, round2 } from './money';
 import type {
   CalculatorInput,
@@ -210,7 +210,7 @@ function insuranceAC(input: CalculatorInput, vat: VatBreakdown): CostResult {
       value: input.acLimit,
       vehicleValue: input.insuredValue,
       ratio,
-      overridden: input.acLimit !== 150_000,
+      overridden: input.acLimit !== DEFAULT_AC_LIMIT,
     },
     depreciation: null,
     legalBasis: [

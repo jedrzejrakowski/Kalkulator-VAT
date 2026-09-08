@@ -10,7 +10,12 @@ export const VEHICLE_LIMITS: Record<Powertrain, number> = {
   zeroEmission: 225_000,
 };
 
-/** Limit stosowany do składek na dobrowolne ubezpieczenia majątkowe (AC, GAP). */
+/**
+ * Limit stosowany do składek na dobrowolne ubezpieczenia majątkowe (AC, GAP).
+ *
+ * W odróżnieniu od limitów amortyzacji wynosi 150 000 zł niezależnie od rodzaju
+ * napędu — tak samo dla spalinowych, jak i dla elektrycznych.
+ */
 export const DEFAULT_AC_LIMIT = 150_000;
 
 export const POWERTRAIN_LABELS: Record<Powertrain, string> = {

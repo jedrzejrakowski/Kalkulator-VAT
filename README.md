@@ -51,8 +51,9 @@ art. 16 ust. 1 pkt 4 ustawy o CIT:
 Pole z limitem jest edytowalne — do umów objętych przepisami przejściowymi można wpisać
 limit sprzed 2026 r.
 
-Limit dla składek AC jest osobnym, również edytowalnym polem z wartością domyślną 150 000 zł.
-Przed użyciem warto zweryfikować, czy nowelizacja nie objęła również tego przepisu.
+Limit dla składek AC jest osobny i wynosi 150 000 zł niezależnie od rodzaju napędu — również
+dla pojazdów elektrycznych. Nie zależy więc od emisji CO₂, w odróżnieniu od limitów amortyzacji
+i leasingu. Pole pozostaje edytowalne.
 
 ## Alokacja kosztu w organizacji
 

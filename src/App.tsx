@@ -235,7 +235,7 @@ export default function App() {
                     value={input.acLimit}
                     onChange={(acLimit) => patch({ acLimit })}
                     suffix="zł"
-                    hint="Domyślnie 150 000 zł."
+                    hint="150 000 zł niezależnie od rodzaju napędu — inaczej niż przy amortyzacji."
                   />
                 </div>
               ) : null}
