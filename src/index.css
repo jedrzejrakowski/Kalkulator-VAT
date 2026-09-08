@@ -16,13 +16,19 @@
   --statutory-soft: #eeebf8;
   --warn-bg: #fdf6e3;
   --warn-border: #e8d8a8;
+  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --radius: 10px;
   --shadow: 0 1px 2px rgba(20, 25, 35, 0.06), 0 4px 12px rgba(20, 25, 35, 0.04);
   color-scheme: light;
 }
 
+/* Motyw ciemny musi zadziałać w trzech stanach: bez atrybutu na <html> decyduje
+   preferencja systemu, a jawny wybór czytelnika stemplowany jako data-theme
+   wygrywa w obie strony. Tokeny są więc definiowane pod oboma selektorami. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --bg: #14171d;
     --surface: #1c2027;
     --surface-alt: #22262f;
@@ -45,6 +51,28 @@
   }
 }
 
+:root[data-theme='dark'] {
+  --bg: #14171d;
+  --surface: #1c2027;
+  --surface-alt: #22262f;
+  --border: #303743;
+  --border-strong: #414a59;
+  --text: #e7eaef;
+  --text-muted: #9aa3b2;
+  --accent: #6fb3e0;
+  --accent-soft: #1b2b38;
+  --kup: #6cc294;
+  --kup-soft: #1a2c23;
+  --nkup: #e2a274;
+  --nkup-soft: #2e231a;
+  --statutory: #a99adf;
+  --statutory-soft: #24203a;
+  --warn-bg: #2a2517;
+  --warn-border: #4a4128;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
+  color-scheme: dark;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -53,8 +81,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
-    sans-serif;
+  font-family: var(--font-sans);
   font-size: 15px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -299,6 +326,7 @@ select:focus {
 }
 
 .headline-value {
+  font-family: var(--font-mono);
   font-size: 30px;
   font-weight: 650;
   letter-spacing: -0.02em;
@@ -332,9 +360,11 @@ table.figures tr:last-child td {
 }
 
 table.figures td {
+  font-family: var(--font-mono);
   text-align: right;
   white-space: nowrap;
   font-weight: 500;
+  font-size: 13.5px;
 }
 
 table.figures .row-note {
@@ -402,7 +432,6 @@ table.figures .row-note {
 
 .steps li span:last-child {
   font-weight: 500;
-  margin-left: auto;
 }
 
 ul.notes {
