@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { formatAmount, parseAmount } from '../domain/money';
+import { formatAmount, formatPercent, parseAmount, parsePercent } from '../domain/money';
 
 interface NumberFieldProps {
   label?: string;
@@ -64,17 +64,31 @@ interface PercentFieldProps {
   value: number;
   onChange: (value: number) => void;
   hint?: ReactNode;
-  max?: number;
+  /**
+   * Zaokrąglanie w górę do pełnych procentów. Wymagają go wskaźniki VAT
+   * (art. 86 ust. 2g i art. 90 ust. 4 ustawy o VAT); klucze podziału kosztu
+   * ustalane wewnętrznie przez organizację żadnemu zaokrągleniu nie podlegają.
+   */
+  roundUp?: boolean;
 }
 
-/** Pole procentowe przyjmujące wyłącznie pełne procenty. */
-export function PercentField({ label, value, onChange, hint, max = 100 }: PercentFieldProps) {
-  const [text, setText] = useState(String(value));
+/**
+ * Pole procentowe przyjmujące ułamki w zapisie polskim i angielskim.
+ *
+ * Tekst i wartość są trzymane razem: kiedy wpisana liczba wykracza poza zakres
+ * od 0 do 100, prostowany jest również tekst w polu, żeby na ekranie nigdy nie
+ * stała liczba inna niż ta, którą kalkulator faktycznie liczy.
+ */
+export function PercentField({ label, value, onChange, hint, roundUp }: PercentFieldProps) {
+  const [text, setText] = useState(() => formatPercent(value));
   const [focused, setFocused] = useState(false);
 
   useEffect(() => {
-    if (!focused) setText(String(value));
+    if (!focused) setText(formatPercent(value));
   }, [value, focused]);
+
+  const typed = parsePercent(text);
+  const rounded = roundUp && typed !== null && !Number.isInteger(typed);
 
   return (
     <label className="field">
@@ -82,25 +96,34 @@ export function PercentField({ label, value, onChange, hint, max = 100 }: Percen
       <span className="input-suffix">
         <input
           type="text"
-          inputMode="numeric"
+          inputMode="decimal"
           value={text}
           onFocus={() => setFocused(true)}
           onBlur={() => {
             setFocused(false);
-            setText(String(value));
+            setText(formatPercent(value));
           }}
           onChange={(event) => {
-            const raw = event.target.value.replace(/[^\d]/g, '');
-            setText(raw);
-            if (raw === '') {
+            const raw = event.target.value.replace(/[^\d.,]/g, '');
+            const parsed = parsePercent(raw);
+            if (parsed === null) {
+              setText(raw);
               onChange(0);
               return;
             }
-            onChange(Math.min(max, Number(raw)));
+            const inRange = String(parsed) === raw.replace(',', '.');
+            setText(inRange ? raw : formatPercent(parsed));
+            onChange(roundUp ? Math.ceil(parsed) : parsed);
           }}
         />
         <span>%</span>
       </span>
+      {rounded ? (
+        <span className="field-hint field-hint-active">
+          {formatPercent(typed)}% zaokrąglono w górę do {value}% — art. 86 ust. 2g i art. 90 ust. 4
+          ustawy o VAT
+        </span>
+      ) : null}
       {hint ? <span className="field-hint">{hint}</span> : null}
     </label>
   );

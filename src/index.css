@@ -187,6 +187,12 @@ h3 {
   margin-top: 5px;
 }
 
+/* Komunikat o zaokrągleniu wskaźnika musi być widoczny — zmienia wynik. */
+.field-hint-active {
+  color: var(--accent);
+  font-weight: 500;
+}
+
 input[type='text'],
 select {
   width: 100%;

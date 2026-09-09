@@ -89,12 +89,14 @@ export default function App() {
                     label="Prewspółczynnik"
                     value={input.prePercent}
                     onChange={(prePercent) => patch({ prePercent })}
-                    hint="Udział działalności gospodarczej, art. 86 ust. 2a."
+                    roundUp
+                    hint="Udział działalności gospodarczej, art. 86 ust. 2a. Ułamki są dozwolone — ustawa każe zaokrąglić je w górę."
                   />
                   <PercentField
                     label="Proporcja sprzedaży"
                     value={input.salesPercent}
                     onChange={(salesPercent) => patch({ salesPercent })}
+                    roundUp
                     hint="Art. 90 ust. 2. Zostaw 100%, jeśli nie masz sprzedaży zwolnionej."
                   />
                 </div>
@@ -102,7 +104,7 @@ export default function App() {
                   label="Udział działalności gospodarczej w koszcie"
                   value={input.businessSharePercent}
                   onChange={(businessSharePercent) => patch({ businessSharePercent })}
-                  hint="Podział kosztu między działalność gospodarczą i statutową według polityki organizacji. Nie wynika wprost z ustawy."
+                  hint="Podział kosztu między działalność gospodarczą i statutową według polityki organizacji. Nie wynika wprost z ustawy, więc bez zaokrąglania — ułamki są dozwolone."
                 />
               </div>
             ) : null}
