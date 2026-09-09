@@ -161,3 +161,44 @@ describe('ubezpieczenia', () => {
     expect(result.nkup).toBe(0);
   });
 });
+
+describe('przypadek z praktyki — rata leasingowa w fundacji', () => {
+  // Odtworzenie rzeczywistego dekretu: faktura 80 775,00 zł brutto,
+  // prewspółczynnik 50%, klucz podziału kosztu 58,44%, wartość auta
+  // w granicach limitu. Różnice groszowe wynikają z zaokrąglenia netto
+  // na fakturze (65 670,74) wobec 80 775 / 1,23 = 65 670,73.
+  const result = calculate(
+    input({
+      entityType: 'ngo',
+      category: 'leasing',
+      amountMode: 'gross',
+      amount: 80_775,
+      vatRatePercent: 23,
+      prePercent: 50,
+      businessSharePercent: 58.44,
+      vehicleValue: 100_000,
+      powertrain: 'emissionHigh',
+    }),
+  );
+
+  it('odlicza 25% podatku naliczonego', () => {
+    expect(result.vat.deductionRate).toBe(0.25);
+    expect(result.vat.deductible).toBeCloseTo(3776.06, 1);
+    expect(result.vat.nonDeductible).toBeCloseTo(11_328.2, 1);
+  });
+
+  it('podstawa obejmuje netto i VAT niepodlegający odliczeniu', () => {
+    expect(result.costBase).toBeCloseTo(76_998.94, 1);
+  });
+
+  it('dzieli podstawę kluczem 58,44% bez reguły 75%', () => {
+    // Rata leasingowa nie jest kosztem używania, więc limit 75% jej nie dotyczy.
+    expect(result.kup).toBeCloseTo(44_998.18, 1);
+    expect(result.statutory).toBeCloseTo(32_000.76, 1);
+    expect(result.nkup).toBe(0);
+  });
+
+  it('rozdział pokrywa całą podstawę', () => {
+    expect(result.kup + result.statutory + result.nkup).toBeCloseTo(result.costBase, 2);
+  });
+});
