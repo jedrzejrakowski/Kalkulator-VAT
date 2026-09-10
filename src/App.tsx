@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Choice, NumberField, PercentField, SelectField } from './components/fields';
 import { ResultPanel } from './components/ResultPanel';
+import { TitleBar } from './components/TitleBar';
 import { calculate } from './domain/calculate';
 import { DEFAULT_INPUT, VAT_RATES } from './domain/defaults';
 import {
@@ -48,7 +49,9 @@ export default function App() {
   const lawfulLimit = statutoryLimit(input.powertrain);
 
   return (
-    <div className="page">
+    <>
+      <TitleBar />
+      <div className="page">
       <header className="page-header">
         <h1>Samochód osobowy do celów mieszanych</h1>
         <p>
@@ -254,6 +257,7 @@ export default function App() {
         poradą podatkową — przy nietypowych umowach i przy stosowaniu przepisów przejściowych do
         limitów sprawdź stan prawny na dzień poniesienia wydatku.
       </p>
-    </div>
+      </div>
+    </>
   );
 }

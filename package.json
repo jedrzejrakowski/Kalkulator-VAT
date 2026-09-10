@@ -4,6 +4,9 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Kalkulator rozliczenia wydatkow na samochod osobowy uzywany do celow mieszanych",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
