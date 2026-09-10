@@ -168,12 +168,20 @@ export function ResultPanel({ input, result }: Props) {
             ))}
           </ul>
 
-          <h3 className="subhead">Podstawa prawna</h3>
-          <ul className="legal">
-            {result.legalBasis.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
+          <details className="legal-box">
+            <summary>Podstawa prawna</summary>
+            <ul className="legal">
+              {result.legalBasis.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+            <p className="legal-box__note">
+              Kalkulator liczy według reguł dla samochodu osobowego używanego do celów mieszanych,
+              czyli bez ewidencji przebiegu i bez zgłoszenia VAT-26. Wynik jest wyliczeniem
+              pomocniczym, nie poradą podatkową — przy nietypowych umowach i przy stosowaniu
+              przepisów przejściowych do limitów sprawdź stan prawny na dzień poniesienia wydatku.
+            </p>
+          </details>
         </section>
       ) : null}
     </div>

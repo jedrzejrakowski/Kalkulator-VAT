@@ -249,12 +249,6 @@ export default function App() {
         <ResultPanel input={input} result={result} />
       </div>
 
-      <p className="disclaimer">
-        Kalkulator liczy według reguł dla samochodu osobowego używanego do celów mieszanych, czyli
-        bez ewidencji przebiegu i bez zgłoszenia VAT-26. Wynik jest wyliczeniem pomocniczym, nie
-        poradą podatkową — przy nietypowych umowach i przy stosowaniu przepisów przejściowych do
-        limitów sprawdź stan prawny na dzień poniesienia wydatku.
-      </p>
       </div>
     </>
   );

@@ -592,3 +592,49 @@ ul.legal {
 
   .results { position: static; }
 }
+
+/* --- podstawa prawna jako zwijana --- */
+
+details.legal-box {
+  margin-top: 20px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+details.legal-box > summary {
+  cursor: pointer;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-weight: 600;
+  list-style: none;
+}
+
+details.legal-box > summary::-webkit-details-marker { display: none; }
+
+details.legal-box > summary::before {
+  content: '▸';
+  display: inline-block;
+  margin-right: 7px;
+  transition: transform 0.15s;
+}
+
+details.legal-box[open] > summary::before { transform: rotate(90deg); }
+
+details.legal-box > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+details.legal-box ul.legal { margin-top: 10px; }
+
+.legal-box__note {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-muted);
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  details.legal-box > summary::before { transition: none; }
+}
