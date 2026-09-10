@@ -1,3 +1,5 @@
+import { Logo } from './Logo';
+
 /**
  * Pasek tytułu widoczny wyłącznie w zainstalowanej aplikacji.
  *
@@ -8,7 +10,7 @@
 export function TitleBar() {
   return (
     <header className="app-titlebar">
-      <img className="app-titlebar__mark" src="./icons/icon.svg" alt="" width="16" height="16" />
+      <Logo size={16} className="app-titlebar__mark" />
       <span className="app-titlebar__name">Kalkulator celów mieszanych</span>
       <button type="button" className="app-titlebar__action" onClick={() => window.print()}>
         Drukuj dekret
