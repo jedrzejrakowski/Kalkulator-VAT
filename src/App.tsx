@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Choice, NumberField, PercentField, SelectField } from './components/fields';
+import { Logo } from './components/Logo';
 import { ResultPanel } from './components/ResultPanel';
 import { TitleBar } from './components/TitleBar';
 import { calculate } from './domain/calculate';
@@ -53,12 +54,9 @@ export default function App() {
       <TitleBar />
       <div className="page">
       <header className="page-header">
-        <h1>Samochód osobowy do celów mieszanych</h1>
-        <p>
-          Rozliczenie pojedynczej faktury: ile VAT-u odliczysz, ile podatku powiększy koszt i jaka
-          część wydatku trafi do kosztów uzyskania przychodu. Dla zwykłej działalności gospodarczej
-          oraz dla fundacji i stowarzyszeń łączących działalność gospodarczą ze statutową.
-        </p>
+        <Logo size={64} className="page-header__mark" />
+        <h1>Kalkulator celów mieszanych</h1>
+        <span className="page-header__sub">Samochód osobowy w firmie</span>
       </header>
 
       <div className="layout">
