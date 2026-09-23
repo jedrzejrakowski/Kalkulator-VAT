@@ -202,3 +202,35 @@ describe('przypadek z praktyki — rata leasingowa w fundacji', () => {
     expect(result.kup + result.statutory + result.nkup).toBeCloseTo(result.costBase, 2);
   });
 });
+
+describe('zaokrąglenie połówki grosza', () => {
+  // Każdy z tych przypadków dawał grosz za mało, bo kwota kończąca się równo
+  // na połowie grosza leży w pamięci komputera jako …4999… i była ścinana w dół.
+
+  it('odliczenie 50% — 32,05 zł VAT to 16,025, czyli 16,03', () => {
+    const r = calculate(input({ amount: 139.33, amountMode: 'net' }));
+    expect(r.vat.vat).toBe(32.05);
+    expect(r.vat.deductible).toBe(16.03);
+    expect(r.vat.nonDeductible).toBe(16.02);
+    // Błąd szedł dalej: nieodliczony VAT i podstawa kosztu wychodziły o grosz za wysokie.
+    expect(r.costBase).toBe(155.35);
+  });
+
+  it('odliczenie organizacji liczone z procentów, nie z gotowego wskaźnika', () => {
+    // 73% × 88% × 50% z 187,50 zł to dokładnie 60,225.
+    const r = calculate(
+      input({ entityType: 'ngo', prePercent: 73, salesPercent: 88, amount: 815.2, amountMode: 'net' }),
+    );
+    expect(r.vat.vat).toBe(187.5);
+    expect(r.vat.deductible).toBe(60.23);
+    expect(r.vat.deductible + r.vat.nonDeductible).toBeCloseTo(r.vat.vat, 10);
+  });
+
+  it('podział 75% kosztów eksploatacyjnych', () => {
+    // Podstawa 112,10 zł × 75% to dokładnie 84,075.
+    const r = calculate(input({ amount: 100.54, amountMode: 'net' }));
+    expect(r.costBase).toBe(112.1);
+    expect(r.kup).toBe(84.08);
+    expect(r.nkup).toBe(28.02);
+  });
+});

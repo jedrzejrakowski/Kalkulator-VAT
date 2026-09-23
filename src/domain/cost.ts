@@ -1,4 +1,5 @@
 import { DEFAULT_AC_LIMIT, limitRatio, statutoryLimit } from './limits';
+import { iloczyn, iloraz, ulamek } from './grosze';
 import { formatRate, round2 } from './money';
 import type {
   CalculatorInput,
@@ -22,6 +23,19 @@ export interface CostResult {
   warnings: string[];
 }
 
+/**
+ * Kwota ograniczona proporcją limitu do wartości pojazdu, liczona jednym ruchem.
+ *
+ * Proporcja w rodzaju 150 000 / 187 501 nie ma skończonego rozwinięcia, więc
+ * mnożenie przez gotowy `limit.ratio` mogło przesunąć wynik o grosz. Liczymy
+ * kwota × limit ÷ wartość w całości. Warunki są te same co w `limitRatio`:
+ * brak wartości albo limit nie mniejszy od wartości oznaczają pełną kwotę.
+ */
+function wLimicie(kwota: number, limit: number, wartosc: number): number {
+  if (wartosc <= 0 || limit >= wartosc) return round2(kwota);
+  return ulamek([kwota, limit], [wartosc]);
+}
+
 function resolveLimit(input: CalculatorInput, vehicleValue: number): LimitInfo {
   const overridden = input.limitOverride !== null;
   const value = overridden ? (input.limitOverride as number) : statutoryLimit(input.powertrain);
@@ -30,7 +44,7 @@ function resolveLimit(input: CalculatorInput, vehicleValue: number): LimitInfo {
 
 function operating(vat: VatBreakdown): CostResult {
   const costBase = round2(vat.net + vat.nonDeductible);
-  const kup = round2(costBase * OPERATING_COST_FACTOR);
+  const kup = iloczyn(costBase, OPERATING_COST_FACTOR);
   const nkup = round2(costBase - kup);
   return {
     costBase,
@@ -55,7 +69,7 @@ function leasing(input: CalculatorInput, vat: VatBreakdown): CostResult {
   const interestNet = Math.min(round2(input.interestNet), vat.net);
   const capitalNet = round2(vat.net - interestNet);
   // VAT nieodliczony dzielimy proporcjonalnie do części kapitałowej i odsetkowej raty.
-  const capitalVat = vat.net > 0 ? round2((vat.nonDeductible * capitalNet) / vat.net) : 0;
+  const capitalVat = vat.net > 0 ? ulamek([vat.nonDeductible, capitalNet], [vat.net]) : 0;
   const interestVat = round2(vat.nonDeductible - capitalVat);
 
   const capitalBase = round2(capitalNet + capitalVat);
@@ -63,7 +77,7 @@ function leasing(input: CalculatorInput, vat: VatBreakdown): CostResult {
   const costBase = round2(capitalBase + interestBase);
 
   const limit = resolveLimit(input, input.vehicleValue);
-  const capitalKup = round2(capitalBase * limit.ratio);
+  const capitalKup = wLimicie(capitalBase, limit.value, limit.vehicleValue);
   const capitalNkup = round2(capitalBase - capitalKup);
 
   const lines: CostLine[] = [
@@ -122,12 +136,10 @@ function leasing(input: CalculatorInput, vat: VatBreakdown): CostResult {
 function purchase(input: CalculatorInput, vat: VatBreakdown): CostResult {
   const initialValue = round2(vat.net + vat.nonDeductible);
   const limit = resolveLimit(input, initialValue);
-  const rate = input.depreciationRatePercent / 100;
-
-  const annual = round2(initialValue * rate);
-  const annualKup = round2(annual * limit.ratio);
-  const monthly = round2(annual / 12);
-  const monthlyKup = round2(monthly * limit.ratio);
+  const annual = ulamek([initialValue, input.depreciationRatePercent], [100]);
+  const annualKup = wLimicie(annual, limit.value, limit.vehicleValue);
+  const monthly = iloraz(annual, 12);
+  const monthlyKup = wLimicie(monthly, limit.value, limit.vehicleValue);
 
   const depreciation: DepreciationInfo = {
     initialValue,
@@ -138,7 +150,8 @@ function purchase(input: CalculatorInput, vat: VatBreakdown): CostResult {
     monthly,
     monthlyKup,
     monthlyNkup: round2(monthly - monthlyKup),
-    lifetimeNkup: round2(initialValue - initialValue * limit.ratio),
+    // Odejmujemy część już zaokrągloną, żeby koszt i nadwyżka sumowały się do wartości.
+    lifetimeNkup: round2(initialValue - wLimicie(initialValue, limit.value, limit.vehicleValue)),
   };
 
   return {
@@ -182,7 +195,7 @@ function purchase(input: CalculatorInput, vat: VatBreakdown): CostResult {
 function insuranceAC(input: CalculatorInput, vat: VatBreakdown): CostResult {
   const costBase = round2(vat.net + vat.nonDeductible);
   const ratio = limitRatio(input.acLimit, input.insuredValue);
-  const kup = round2(costBase * ratio);
+  const kup = wLimicie(costBase, input.acLimit, input.insuredValue);
   const nkup = round2(costBase - kup);
 
   const warnings: string[] = [];

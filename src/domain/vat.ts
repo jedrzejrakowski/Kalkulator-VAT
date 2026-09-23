@@ -1,3 +1,4 @@
+import { ulamek } from './grosze';
 import { round2 } from './money';
 import type { AmountMode, CalculatorInput, VatBreakdown, VatStep } from './types';
 
@@ -9,14 +10,15 @@ export function splitAmount(
   amount: number,
   vatRatePercent: number,
 ): { net: number; vat: number; gross: number } {
-  const rate = vatRatePercent / 100;
+  // Stawkę trzymamy w procentach i dzielimy przez 100 w jednym rachunku z kwotą,
+  // zamiast mnożyć przez gotowy ułamek — 0,23 w pamięci nie jest dokładnie 0,23.
   if (mode === 'net') {
     const net = round2(amount);
-    const vat = round2(net * rate);
+    const vat = ulamek([net, vatRatePercent], [100]);
     return { net, vat, gross: round2(net + vat) };
   }
   const gross = round2(amount);
-  const net = round2(gross / (1 + rate));
+  const net = ulamek([gross, 100], [100 + vatRatePercent]);
   return { net, vat: round2(gross - net), gross };
 }
 
@@ -62,10 +64,23 @@ export function deductionRate(input: CalculatorInput): { rate: number; steps: Va
   return { rate: pre * sales * MIXED_USE_FACTOR, steps };
 }
 
+/**
+ * Kwota odliczenia liczona z procentów, a nie z gotowego wskaźnika.
+ *
+ * Wskaźnik organizacji to iloczyn trzech ułamków, w pamięci już niedokładny:
+ * 0,73 × 0,88 × 0,5 daje 0,32119999…, a nie 0,3212. Mnożenie podatku przez
+ * taki wskaźnik mogło przesunąć kwotę odliczenia o grosz — dlatego podatek,
+ * procenty i ograniczenie 50% idą do jednego rachunku.
+ */
+function deductibleAmount(vat: number, input: CalculatorInput): number {
+  if (input.entityType === 'business') return ulamek([vat, MIXED_USE_FACTOR]);
+  return ulamek([vat, input.prePercent, input.salesPercent, MIXED_USE_FACTOR], [100, 100]);
+}
+
 export function calculateVat(input: CalculatorInput): VatBreakdown {
   const { net, vat, gross } = splitAmount(input.amountMode, input.amount, input.vatRatePercent);
   const { rate, steps } = deductionRate(input);
-  const deductible = round2(vat * rate);
+  const deductible = deductibleAmount(vat, input);
   return {
     net,
     vat,

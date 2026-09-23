@@ -1,5 +1,6 @@
 import { calculateCost } from './cost';
 import { formatPln } from './money';
+import { ulamek } from './grosze';
 import { round2 } from './money';
 import { calculateVat } from './vat';
 import type { CalculationResult, CalculatorInput, CostLine } from './types';
@@ -78,8 +79,7 @@ export function calculate(input: CalculatorInput): CalculationResult {
   let kup = cost.kup;
   let statutory = 0;
   if (input.entityType === 'ngo' && input.businessSharePercent < 100) {
-    const share = input.businessSharePercent / 100;
-    const business = round2(cost.kup * share);
+    const business = ulamek([cost.kup, input.businessSharePercent], [100]);
     statutory = round2(cost.kup - business);
     kup = business;
     if (statutory > 0) {

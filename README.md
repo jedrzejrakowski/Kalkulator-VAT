@@ -61,6 +61,26 @@ W trybie fundacji dostępne jest pole „Udział działalności gospodarczej w k
 wyliczony koszt podatkowy między działalność gospodarczą i statutową. Nie wynika ono wprost
 z ustawy — odzwierciedla politykę rachunkowości organizacji i domyślnie wynosi 100%.
 
+## Zaokrąglenie do groszy
+
+Wszystkie iloczyny i ilorazy — odliczenie VAT, podział 75%, proporcje limitu,
+odpisy amortyzacyjne, podział kosztu organizacji — liczymy na liczbach
+całkowitych (`src/domain/grosze.ts`), a zaokrąglamy raz, na końcu: końcówki
+od pół grosza w górę.
+
+Wcześniej liczyło się to na liczbach zmiennoprzecinkowych, w których kwota
+kończąca się równo na połowie grosza leży jako …4999…: 16,025 zł odliczenia
+zamieniało się w 16,02. Przy odliczeniu 50% zdarzało się to mniej więcej na
+co trzydziestej fakturze, a błąd szedł dalej — do VAT nieodliczonego i podstawy
+kosztu.
+
+Dwie rzeczy liczymy celowo w jednym rachunku, zamiast mnożyć przez gotowy
+ułamek. **Odliczenie organizacji** idzie z procentów (podatek × prewspółczynnik
+× proporcja × ½), bo sam wskaźnik 0,73 × 0,88 × 0,5 jest w pamięci
+niedokładny. **Proporcja limitu** idzie jako kwota × limit ÷ wartość pojazdu,
+bo 150 000 / 187 501 nie ma skończonego rozwinięcia. Testy porównują wyniki
+ze wzorcem na dwóch milionach kwot VAT i stu tysiącach losowych proporcji.
+
 ## Uruchomienie
 
 ```bash
@@ -74,6 +94,7 @@ npm test         # testy logiki podatkowej
 
 ```
 src/domain/     reguły podatkowe, niezależne od interfejsu
+  grosze.ts     dokładne mnożenie i dzielenie z zaokrągleniem do groszy
   vat.ts        wskaźnik odliczenia i podział podatku naliczonego
   cost.ts       koszt uzyskania przychodu dla każdej kategorii wydatku
   limits.ts     limity wartości pojazdu
