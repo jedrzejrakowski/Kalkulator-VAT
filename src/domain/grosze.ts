@@ -12,6 +12,8 @@
  * Tutaj każdy argument zamieniamy na parę „całkowita mantysa i liczba miejsc
  * po przecinku", liczymy na `BigInt`, a zaokrąglamy raz, na końcu, dokładnie.
  * Końcówki od pół grosza idą w górę — tak zaokrągla się kwoty w złotych.
+ *
+ * Ten sam plik żyje w Kalkulatorze walut — zmiany warto przenosić w obie strony.
  */
 
 interface Dziesietna {
@@ -109,6 +111,9 @@ export const iloczyn = (a: number, b: number): number => ulamek([a, b]);
 
 /** a ÷ b, zaokrąglone do groszy. */
 export const iloraz = (a: number, b: number): number => ulamek([a], [b]);
+
+/** a × b ÷ c, zaokrąglone do groszy jednym ruchem. */
+export const iloczynPrzezIloraz = (a: number, b: number, c: number): number => ulamek([a, b], [c]);
 
 /**
  * Wartość zaokrąglona do groszy.
