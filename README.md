@@ -90,6 +90,17 @@ npm run build    # build produkcyjny do dist/
 npm test         # testy logiki podatkowej
 ```
 
+## Wdrożenie
+
+Kalkulator działa pod https://samochod.apkownia.cloud — na VPS Hostingera
+Caddy (`/opt/caddy/Caddyfile`) podaje pliki z `/srv/apps/kalkulator-samochod`.
+
+Każdy push do `main`, po zielonych testach, wysyła `dist/` przez rsync jako
+`deploy` — tak jak Kalkulator walut. Potrzebny sekret repozytorium `DEPLOY_KEY`
+(ten sam klucz co w Kalkulatorze walut, base64); bez niego krok się pomija.
+
+Kopia Caddyfile sprzed dodania strony: `/opt/caddy/Caddyfile.przed-samochodem`.
+
 ## Struktura
 
 ```
