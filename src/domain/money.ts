@@ -64,6 +64,22 @@ export function parsePercent(raw: string): number | null {
   return Math.min(100, Math.max(0, value));
 }
 
+/**
+ * Tekst pola procentowego po każdym wpisanym znaku i liczba, którą z niego liczymy.
+ *
+ * Wpisany zapis zostaje w polu, dopóki liczba mieści się w zakresie — także
+ * niedokończona, jak „58,” w trakcie pisania ułamka. Porównujemy liczby, nie
+ * napisy: tekstowo „58,” to nie „58” i przecinek znikał, zanim padła reszta
+ * cyfr, więc z „58,44” robiło się 5844, a po przycięciu 100%. Poza zakresem
+ * tekst zastępuje przycięta wartość, żeby na ekranie stało to, co liczymy.
+ */
+export function percentDraft(raw: string): { text: string; value: number | null } {
+  const value = parsePercent(raw);
+  if (value === null) return { text: raw, value };
+  const typed = Number(raw.replace(/[\s\u00a0]/g, '').replace(',', '.'));
+  return { text: typed === value ? raw : formatPercent(value), value };
+}
+
 /** Procent do wyświetlenia: bez zbędnych zer, z polskim przecinkiem. */
 export function formatPercent(value: number): string {
   return new Intl.NumberFormat('pl-PL', { maximumFractionDigits: 4 }).format(value);

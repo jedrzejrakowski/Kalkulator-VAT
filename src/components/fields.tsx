@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { formatAmount, formatPercent, parseAmount, parsePercent } from '../domain/money';
+import { formatAmount, formatPercent, parseAmount, parsePercent, percentDraft } from '../domain/money';
 
 interface NumberFieldProps {
   label?: string;
@@ -104,16 +104,13 @@ export function PercentField({ label, value, onChange, hint, roundUp }: PercentF
             setText(formatPercent(value));
           }}
           onChange={(event) => {
-            const raw = event.target.value.replace(/[^\d.,]/g, '');
-            const parsed = parsePercent(raw);
-            if (parsed === null) {
-              setText(raw);
+            const draft = percentDraft(event.target.value.replace(/[^\d.,]/g, ''));
+            setText(draft.text);
+            if (draft.value === null) {
               onChange(0);
               return;
             }
-            const inRange = String(parsed) === raw.replace(',', '.');
-            setText(inRange ? raw : formatPercent(parsed));
-            onChange(roundUp ? Math.ceil(parsed) : parsed);
+            onChange(roundUp ? Math.ceil(draft.value) : draft.value);
           }}
         />
         <span>%</span>
