@@ -90,20 +90,16 @@ npm run build    # build produkcyjny do dist/
 npm test         # testy logiki podatkowej
 ```
 
-## Wdrożenie na Hostinger
+## Wdrożenie
 
-Każdy push do `main`, po zielonych testach, wgrywa `dist/` przez FTP
-(`.github/workflows/ci.yml`). Sekrety repozytorium (Settings → Secrets and
-variables → Actions), wartości z hPanelu → Pliki → Konta FTP:
+Kalkulator działa pod https://samochod.apkownia.cloud — na VPS Hostingera
+Caddy (`/opt/caddy/Caddyfile`) podaje pliki z `/srv/apps/kalkulator-samochod`.
 
-| Sekret | Przykład |
-| --- | --- |
-| `FTP_SERVER` | `ftp.twojadomena.pl` |
-| `FTP_USERNAME` | `u123456789.twojadomena.pl` |
-| `FTP_PASSWORD` | hasło konta FTP |
-| `FTP_DIR` | `public_html/kalkulator` (domyślnie `public_html`) |
+Każdy push do `main`, po zielonych testach, wysyła `dist/` przez rsync jako
+`deploy` — tak jak Kalkulator walut. Potrzebny sekret repozytorium `DEPLOY_KEY`
+(ten sam klucz co w Kalkulatorze walut, base64); bez niego krok się pomija.
 
-Ścieżki w buildzie są względne, więc kalkulator działa także w podkatalogu.
+Kopia Caddyfile sprzed dodania strony: `/opt/caddy/Caddyfile.przed-samochodem`.
 
 ## Struktura
 
