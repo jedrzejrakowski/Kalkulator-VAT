@@ -30,6 +30,10 @@ Przycisk „Zapisz jako PDF” pod wynikiem otwiera okno drukowania przeglądark
 „Zapisz jako PDF”. Plik zawiera datę wyliczenia, dane wejściowe, wynik, opis księgowania
 i podstawę prawną.
 
+„Pobierz Excel” zapisuje to samo jako arkusz .xlsx — kwoty i procenty są liczbami, a nie
+tekstem, więc można na nich dalej liczyć. Plik składa `src/domain/xlsx.ts` z archiwum ZIP
+z `src/domain/zip.ts` (ten sam co w Kalkulatorze walut), bez dodatkowej biblioteki.
+
 ## Rodzaje wydatków
 
 | Wydatek | Koszt podatkowy |

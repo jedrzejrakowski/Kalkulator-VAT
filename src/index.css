@@ -607,8 +607,14 @@ ul.legal {
 }
 
 
-.export-button {
+.export-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-top: 16px;
+}
+
+.export-button {
   font: inherit;
   font-size: 13.5px;
   font-weight: 500;
