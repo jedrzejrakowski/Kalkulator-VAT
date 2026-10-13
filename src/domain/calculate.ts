@@ -3,7 +3,7 @@ import { formatPln } from './money';
 import { ulamek } from './grosze';
 import { round2 } from './money';
 import { calculateVat } from './vat';
-import type { CalculationResult, CalculatorInput, CostLine } from './types';
+import type { Allocation, CalculationResult, CalculatorInput, CostLine, VatBreakdown } from './types';
 
 function bookingNotes(input: CalculatorInput, result: Omit<CalculationResult, 'booking'>): string[] {
   const notes: string[] = [];
@@ -67,6 +67,33 @@ function bookingNotes(input: CalculatorInput, result: Omit<CalculationResult, 'b
   return notes;
 }
 
+/**
+ * Podział rachunkowy kosztu organizacji między działalność statutową i gospodarczą.
+ *
+ * Netto dzielimy udziałem z polityki rachunkowości. VAT idzie za swoim źródłem:
+ * część statutowa nie ma prawa do odliczenia, więc dostaje cały podatek
+ * przypadający na nią według prewspółczynnika; gospodarcza — resztę, której
+ * nie odliczono. Odsetki leasingowe zostają kosztem finansowym, poza podziałem.
+ * Zakupu nie dzielimy — kosztem są dopiero odpisy amortyzacyjne.
+ */
+function allocate(input: CalculatorInput, vat: VatBreakdown): Allocation | null {
+  if (input.entityType !== 'ngo' || input.category === 'purchase') return null;
+
+  const financial = input.category === 'leasing' ? Math.min(round2(input.interestNet), vat.net) : 0;
+  const base = round2(vat.net - financial);
+  const businessNet = ulamek([base, input.businessSharePercent], [100]);
+  const statutoryNet = round2(base - businessNet);
+  // Prewspółczynnik to pełne procenty, więc 100 − pre liczy się dokładnie.
+  const statutoryVat = ulamek([vat.vat, 100 - input.prePercent], [100]);
+  const businessVat = round2(vat.nonDeductible - statutoryVat);
+
+  return {
+    statutory: { net: statutoryNet, vat: statutoryVat, total: round2(statutoryNet + statutoryVat) },
+    business: { net: businessNet, vat: businessVat, total: round2(businessNet + businessVat) },
+    financial,
+  };
+}
+
 export function calculate(input: CalculatorInput): CalculationResult {
   const vat = calculateVat(input);
   const cost = calculateCost(input, vat);
@@ -121,6 +148,7 @@ export function calculate(input: CalculatorInput): CalculationResult {
     warnings,
     limit: cost.limit,
     depreciation: cost.depreciation,
+    allocation: allocate(input, vat),
   };
 
   return { ...partial, booking: bookingNotes(input, partial) };

@@ -110,6 +110,21 @@ export interface DepreciationInfo {
   lifetimeNkup: number;
 }
 
+export interface AllocationPart {
+  net: number;
+  /** VAT, który nie podlega odliczeniu i powiększa koszt tej działalności. */
+  vat: number;
+  total: number;
+}
+
+/** Podział rachunkowy kosztu organizacji, np. na konta 500 i 501. */
+export interface Allocation {
+  statutory: AllocationPart;
+  business: AllocationPart;
+  /** Odsetki leasingowe netto — koszt finansowy, poza podziałem. */
+  financial: number;
+}
+
 export interface CalculationResult {
   vat: VatBreakdown;
   /** Podstawa kosztu: netto powiększone o VAT niepodlegający odliczeniu. */
@@ -124,4 +139,5 @@ export interface CalculationResult {
   warnings: string[];
   limit: LimitInfo | null;
   depreciation: DepreciationInfo | null;
+  allocation: Allocation | null;
 }

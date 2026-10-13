@@ -177,6 +177,49 @@ describe('faktura leasingowa z KSeF', () => {
   });
 });
 
+describe('podział rachunkowy organizacji', () => {
+  // Faktura 17467/09/2026/RL/LS w fundacji: prewspółczynnik 50%, udział w koszcie 50%.
+  const rata = (zmiany: Partial<CalculatorInput> = {}) =>
+    calculate(
+      input({
+        entityType: 'ngo',
+        prePercent: 50,
+        salesPercent: 100,
+        businessSharePercent: 50,
+        category: 'leasing',
+        amountMode: 'net',
+        amount: 2212.92,
+        interestNet: 34.78,
+        ratioOverridePercent: 58.44,
+        ...zmiany,
+      }),
+    );
+
+  it('zgadza się z dekretem księgowym kont 500 i 501', () => {
+    const a = rata().allocation!;
+    // Statutowa: połowa kapitału netto i cały VAT jej połowy (bez prawa do odliczenia).
+    expect(a.statutory).toEqual({ net: 1089.07, vat: 254.49, total: 1343.56 });
+    // Gospodarcza: połowa kapitału netto i tylko nieodliczona część jej VAT.
+    expect(a.business).toEqual({ net: 1089.07, vat: 127.24, total: 1216.31 });
+    // Odsetki netto zostają kosztem finansowym, poza podziałem.
+    expect(a.financial).toBe(34.78);
+  });
+
+  it('części sumują się do całego kosztu', () => {
+    for (const businessSharePercent of [0, 37.5, 58.44, 100]) {
+      const r = rata({ businessSharePercent, prePercent: 37, salesPercent: 88 });
+      const a = r.allocation!;
+      expect(a.statutory.total + a.business.total + a.financial).toBeCloseTo(r.costBase, 10);
+      expect(a.statutory.vat + a.business.vat).toBeCloseTo(r.vat.nonDeductible, 10);
+    }
+  });
+
+  it('nie dotyczy działalności gospodarczej ani zakupu samochodu', () => {
+    expect(rata({ entityType: 'business' }).allocation).toBeNull();
+    expect(rata({ category: 'purchase' }).allocation).toBeNull();
+  });
+});
+
 describe('ubezpieczenia', () => {
   it('AC podlega limitowi proporcjonalnemu', () => {
     const result = calculate(
