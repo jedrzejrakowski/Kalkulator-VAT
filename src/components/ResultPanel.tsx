@@ -1,4 +1,5 @@
 import { formatPln, formatRate } from '../domain/money';
+import { TYP_XLSX, plikXlsx } from '../domain/xlsx';
 import type { CalculationResult, CalculatorInput } from '../domain/types';
 
 interface Props {
@@ -22,6 +23,20 @@ function exportPdf() {
     details.open = true;
   });
   window.print();
+}
+
+function exportXlsx(input: CalculatorInput, result: CalculationResult) {
+  const kiedy = new Date();
+  const url = URL.createObjectURL(new Blob([plikXlsx(input, result, kiedy).slice()], { type: TYP_XLSX }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `rozliczenie-samochod-${kiedy.toLocaleDateString('sv-SE')}.xlsx`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  // Adres zwalniamy z opóźnieniem — część przeglądarek zaczyna pobieranie
+  // dopiero po powrocie z obsługi kliknięcia.
+  window.setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
 export function ResultPanel({ input, result }: Props) {
@@ -196,9 +211,14 @@ export function ResultPanel({ input, result }: Props) {
             </p>
           </details>
 
-          <button type="button" className="export-button no-print" onClick={exportPdf}>
-            Zapisz jako PDF
-          </button>
+          <div className="export-actions no-print">
+            <button type="button" className="export-button" onClick={exportPdf}>
+              Zapisz jako PDF
+            </button>
+            <button type="button" className="export-button" onClick={() => exportXlsx(input, result)}>
+              Pobierz Excel
+            </button>
+          </div>
         </section>
       ) : null}
     </div>
