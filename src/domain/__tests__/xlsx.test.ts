@@ -68,6 +68,14 @@ describe('arkusz rozliczenia', () => {
     expect(xml).toMatch(/s="2"><v>0.5844<\/v>/);
   });
 
+  it('przy leasingu pokazuje kapitał i odsetki jak na fakturze', () => {
+    // Faktura 17467/09/2026/RL/LS: kapitał 2178,14 + odsetki 34,78 netto.
+    const { xml } = arkusz({ category: 'leasing', amountMode: 'net', amount: 2212.92, interestNet: 34.78 });
+    expect(xml).toMatch(/Kapitał \(netto\)<\/t><\/is><\/c><c r="B\d+" s="1"><v>2178.14<\/v>/);
+    expect(xml).toMatch(/Odsetki \(netto\)<\/t><\/is><\/c><c r="B\d+" s="1"><v>34.78<\/v>/);
+    expect(xml).not.toContain('Kwota z faktury');
+  });
+
   it('pokazuje wskaźniki organizacji tylko dla fundacji', () => {
     expect(arkusz({ amount: 1230 }).xml).not.toContain('Prewspółczynnik');
     const { xml } = arkusz({ amount: 1230, entityType: 'ngo', prePercent: 37 });

@@ -44,6 +44,10 @@ z `src/domain/zip.ts` (ten sam co w Kalkulatorze walut), bez dodatkowej bibliote
 | Ubezpieczenie AC, GAP | proporcjonalnie do limitu 150 000 zł |
 | Ubezpieczenie OC, NNW, assistance | w całości |
 
+Przy racie leasingu wpisuje się osobno kapitał i odsetki netto — tak, jak stoją w dwóch
+pozycjach faktury. Limit obejmuje tylko kapitał; odsetki wraz z nieodliczonym VAT od nich
+są kosztem w całości.
+
 Podstawą kosztu jest zawsze kwota netto powiększona o VAT niepodlegający odliczeniu
 (art. 23 ust. 5a ustawy o PIT, art. 16 ust. 5a ustawy o CIT).
 
