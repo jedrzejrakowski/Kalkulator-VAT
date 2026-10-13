@@ -90,6 +90,21 @@ npm run build    # build produkcyjny do dist/
 npm test         # testy logiki podatkowej
 ```
 
+## Wdrożenie na Hostinger
+
+Każdy push do `main`, po zielonych testach, wgrywa `dist/` przez FTP
+(`.github/workflows/ci.yml`). Sekrety repozytorium (Settings → Secrets and
+variables → Actions), wartości z hPanelu → Pliki → Konta FTP:
+
+| Sekret | Przykład |
+| --- | --- |
+| `FTP_SERVER` | `ftp.twojadomena.pl` |
+| `FTP_USERNAME` | `u123456789.twojadomena.pl` |
+| `FTP_PASSWORD` | hasło konta FTP |
+| `FTP_DIR` | `public_html/kalkulator` (domyślnie `public_html`) |
+
+Ścieżki w buildzie są względne, więc kalkulator działa także w podkatalogu.
+
 ## Struktura
 
 ```
