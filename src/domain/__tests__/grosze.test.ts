@@ -2,6 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { doGroszy, iloczyn, iloraz, ulamek } from '../grosze';
 
 /** Wzorzec: kwota w groszach × licznik ÷ mianownik, połowa w górę, na BigInt. */
+/**
+ * Przeglądy idą przez miliony kwot i trwają kilka sekund — domyślne 5 s vitest
+ * to za mało na wolniejszej maszynie, a przekroczenie wyglądałoby jak błąd groszy.
+ */
+const PELNY_PRZEGLAD = 30_000;
+
 const wzorzec = (gr: number, licznik: number, mianownik: number) =>
   Number((BigInt(gr) * BigInt(licznik) * 2n + BigInt(mianownik)) / (2n * BigInt(mianownik))) / 100;
 
@@ -19,7 +25,7 @@ describe('odliczenie połowy VAT', () => {
       if (iloczyn(gr / 100, 0.5) !== wzorzec(gr, 1, 2)) rozbieznosci += 1;
     }
     expect(rozbieznosci).toBe(0);
-  });
+  }, PELNY_PRZEGLAD);
 });
 
 describe('odliczenie ćwierci VAT i podział 75%', () => {
@@ -30,7 +36,7 @@ describe('odliczenie ćwierci VAT i podział 75%', () => {
       if (iloczyn(gr / 100, 0.75) !== wzorzec(gr, 3, 4)) rozbieznosci += 1;
     }
     expect(rozbieznosci).toBe(0);
-  });
+  }, PELNY_PRZEGLAD);
 
   it('naprawia przypadki wyłapane w próbie', () => {
     expect(iloczyn(8.54, 0.25)).toBe(2.14);
@@ -65,7 +71,7 @@ describe('ułamek wieloczłonowy', () => {
       if (ulamek([gr / 100, limit], [wartosc]) !== wzorzec(gr, limit, wartosc)) rozbieznosci += 1;
     }
     expect(rozbieznosci).toBe(0);
-  });
+  }, PELNY_PRZEGLAD);
 });
 
 describe('dzielenie', () => {
