@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseAmount, parsePercent } from '../money';
+import { parseAmount, parsePercent, percentDraft } from '../money';
 
 describe('parsowanie kwot', () => {
   it('przyjmuje zapis polski z przecinkiem i spacjami', () => {
@@ -44,5 +44,31 @@ describe('parsowanie procentów', () => {
   it('sygnalizuje brak liczby zamiast podstawiać zero', () => {
     expect(parsePercent('')).toBeNull();
     expect(parsePercent(',')).toBeNull();
+  });
+});
+
+describe('pisanie w polu procentowym', () => {
+  it('zostawia przecinek w trakcie pisania ułamka', () => {
+    // Kolejne stany pola przy wpisywaniu „58,44” znak po znaku.
+    expect(percentDraft('58')).toEqual({ text: '58', value: 58 });
+    expect(percentDraft('58,')).toEqual({ text: '58,', value: 58 });
+    expect(percentDraft('58,4')).toEqual({ text: '58,4', value: 58.4 });
+    expect(percentDraft('58,44')).toEqual({ text: '58,44', value: 58.44 });
+  });
+
+  it('zostawia kropkę i końcowe zero', () => {
+    expect(percentDraft('58.')).toEqual({ text: '58.', value: 58 });
+    expect(percentDraft('58,40')).toEqual({ text: '58,40', value: 58.4 });
+    expect(percentDraft('0,')).toEqual({ text: '0,', value: 0 });
+  });
+
+  it('poza zakresem pokazuje wartość przyciętą', () => {
+    expect(percentDraft('150')).toEqual({ text: '100', value: 100 });
+    expect(percentDraft('100,5')).toEqual({ text: '100', value: 100 });
+  });
+
+  it('pusty tekst zostawia bez liczby', () => {
+    expect(percentDraft('')).toEqual({ text: '', value: null });
+    expect(percentDraft(',')).toEqual({ text: ',', value: null });
   });
 });
