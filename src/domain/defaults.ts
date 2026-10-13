@@ -15,6 +15,7 @@ export const DEFAULT_INPUT: CalculatorInput = {
 
   powertrain: 'emissionHigh',
   limitOverride: null,
+  ratioOverridePercent: null,
   vehicleValue: 0,
   acLimit: DEFAULT_AC_LIMIT,
   insuredValue: 0,

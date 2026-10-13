@@ -36,10 +36,24 @@ function wLimicie(kwota: number, limit: number, wartosc: number): number {
   return ulamek([kwota, limit], [wartosc]);
 }
 
+/** Kwota w proporcji limitu pojazdu — wpisanej ręcznie albo wyliczonej z limitu. */
+function wProporcji(kwota: number, input: CalculatorInput, limit: LimitInfo): number {
+  if (input.ratioOverridePercent !== null) return ulamek([kwota, input.ratioOverridePercent], [100]);
+  return wLimicie(kwota, limit.value, limit.vehicleValue);
+}
+
 function resolveLimit(input: CalculatorInput, vehicleValue: number): LimitInfo {
   const overridden = input.limitOverride !== null;
   const value = overridden ? (input.limitOverride as number) : statutoryLimit(input.powertrain);
-  return { value, vehicleValue, ratio: limitRatio(value, vehicleValue), overridden };
+  const ratioOverridden = input.ratioOverridePercent !== null;
+  const ratio = ratioOverridden
+    ? (input.ratioOverridePercent as number) / 100
+    : limitRatio(value, vehicleValue);
+  return { value, vehicleValue, ratio, overridden, ratioOverridden };
+}
+
+function opisProporcji(limit: LimitInfo): string {
+  return `proporcja ${formatRate(limit.ratio)} — ${limit.ratioOverridden ? 'wpisana ręcznie' : 'limit do wartości pojazdu'}`;
 }
 
 function operating(vat: VatBreakdown): CostResult {
@@ -77,7 +91,7 @@ function leasing(input: CalculatorInput, vat: VatBreakdown): CostResult {
   const costBase = round2(capitalBase + interestBase);
 
   const limit = resolveLimit(input, input.vehicleValue);
-  const capitalKup = wLimicie(capitalBase, limit.value, limit.vehicleValue);
+  const capitalKup = wProporcji(capitalBase, input, limit);
   const capitalNkup = round2(capitalBase - capitalKup);
 
   const lines: CostLine[] = [
@@ -86,7 +100,7 @@ function leasing(input: CalculatorInput, vat: VatBreakdown): CostResult {
       label: 'Część kapitałowa w kosztach',
       amount: capitalKup,
       kind: 'kup',
-      note: `proporcja ${formatRate(limit.ratio)} — limit do wartości pojazdu`,
+      note: opisProporcji(limit),
     },
   ];
   if (capitalNkup > 0) {
@@ -94,7 +108,9 @@ function leasing(input: CalculatorInput, vat: VatBreakdown): CostResult {
       label: 'Część kapitałowa ponad limit',
       amount: capitalNkup,
       kind: 'nkup',
-      note: 'nadwyżka wartości pojazdu ponad limit',
+      note: limit.ratioOverridden
+        ? 'część poza proporcją wpisaną ręcznie'
+        : 'nadwyżka wartości pojazdu ponad limit',
     });
   }
   if (interestBase > 0) {
@@ -107,7 +123,7 @@ function leasing(input: CalculatorInput, vat: VatBreakdown): CostResult {
   }
 
   const warnings: string[] = [];
-  if (input.vehicleValue <= 0) {
+  if (input.vehicleValue <= 0 && !limit.ratioOverridden) {
     warnings.push(
       'Nie podano wartości samochodu z umowy — limit nie został zastosowany, cała część kapitałowa trafiła do kosztów.',
     );
@@ -137,9 +153,9 @@ function purchase(input: CalculatorInput, vat: VatBreakdown): CostResult {
   const initialValue = round2(vat.net + vat.nonDeductible);
   const limit = resolveLimit(input, initialValue);
   const annual = ulamek([initialValue, input.depreciationRatePercent], [100]);
-  const annualKup = wLimicie(annual, limit.value, limit.vehicleValue);
+  const annualKup = wProporcji(annual, input, limit);
   const monthly = iloraz(annual, 12);
-  const monthlyKup = wLimicie(monthly, limit.value, limit.vehicleValue);
+  const monthlyKup = wProporcji(monthly, input, limit);
 
   const depreciation: DepreciationInfo = {
     initialValue,
@@ -151,7 +167,7 @@ function purchase(input: CalculatorInput, vat: VatBreakdown): CostResult {
     monthlyKup,
     monthlyNkup: round2(monthly - monthlyKup),
     // Odejmujemy część już zaokrągloną, żeby koszt i nadwyżka sumowały się do wartości.
-    lifetimeNkup: round2(initialValue - wLimicie(initialValue, limit.value, limit.vehicleValue)),
+    lifetimeNkup: round2(initialValue - wProporcji(initialValue, input, limit)),
   };
 
   return {
@@ -169,7 +185,7 @@ function purchase(input: CalculatorInput, vat: VatBreakdown): CostResult {
         label: 'Odpis roczny stanowiący koszt',
         amount: depreciation.annualKup,
         kind: 'kup',
-        note: `${input.depreciationRatePercent}% wartości początkowej, proporcja ${formatRate(limit.ratio)}`,
+        note: `${input.depreciationRatePercent}% wartości początkowej, ${opisProporcji(limit)}`,
       },
       {
         label: 'Odpis roczny wyłączony z kosztów',
@@ -224,6 +240,7 @@ function insuranceAC(input: CalculatorInput, vat: VatBreakdown): CostResult {
       vehicleValue: input.insuredValue,
       ratio,
       overridden: input.acLimit !== DEFAULT_AC_LIMIT,
+      ratioOverridden: false,
     },
     depreciation: null,
     legalBasis: [

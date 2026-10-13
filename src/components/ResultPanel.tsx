@@ -105,7 +105,9 @@ export function ResultPanel({ input, result }: Props) {
                     </span>
                   </li>
                   <li>
-                    <span>Proporcja zaliczana do kosztów</span>
+                    <span>
+                      Proporcja zaliczana do kosztów{limit.ratioOverridden ? ' (wpisana ręcznie)' : ''}
+                    </span>
                     <span>{formatRate(limit.ratio)}</span>
                   </li>
                 </ul>
