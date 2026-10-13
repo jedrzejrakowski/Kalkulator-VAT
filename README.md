@@ -53,6 +53,9 @@ art. 16 ust. 1 pkt 4 ustawy o CIT:
 Pole z limitem jest edytowalne — do umów objętych przepisami przejściowymi można wpisać
 limit sprzed 2026 r.
 
+Proporcję limitu można też wpisać ręcznie (leasing i zakup) — zaznacz „Wpisz proporcję
+ręcznie” i podaj procent. Wtedy limit i wartość pojazdu nie wpływają na wynik.
+
 Limit dla składek AC jest osobny i wynosi 150 000 zł niezależnie od rodzaju napędu — również
 dla pojazdów elektrycznych. Nie zależy więc od emisji CO₂, w odróżnieniu od limitów amortyzacji
 i leasingu. Pole pozostaje edytowalne.

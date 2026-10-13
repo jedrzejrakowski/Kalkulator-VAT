@@ -47,6 +47,8 @@ export interface CalculatorInput {
   powertrain: Powertrain;
   /** Ręczne nadpisanie limitu wartości pojazdu; null = limit ustawowy. */
   limitOverride: number | null;
+  /** Ręcznie wpisana proporcja limitu w procentach; null = limit ÷ wartość pojazdu. */
+  ratioOverridePercent: number | null;
   /** Wartość samochodu przyjęta do proporcji przy leasingu lub najmie. */
   vehicleValue: number;
   /** Limit dla składek AC/GAP. */
@@ -91,6 +93,8 @@ export interface LimitInfo {
   ratio: number;
   /** Czy limit został nadpisany ręcznie. */
   overridden: boolean;
+  /** Czy proporcja została wpisana ręcznie zamiast wyliczona z limitu. */
+  ratioOverridden: boolean;
 }
 
 export interface DepreciationInfo {

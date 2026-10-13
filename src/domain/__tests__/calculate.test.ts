@@ -99,6 +99,17 @@ describe('limity wartości pojazdu od 2026 roku', () => {
     expect(result.limit?.overridden).toBe(true);
   });
 
+  it('pozwala wpisać proporcję ręcznie zamiast wyliczać ją z limitu', () => {
+    const result = purchase({ powertrain: 'emissionHigh', ratioOverridePercent: 37.5 });
+    expect(result.limit?.ratio).toBe(0.375);
+    expect(result.limit?.ratioOverridden).toBe(true);
+    const dep = result.depreciation!;
+    // odpis roczny 44 600 zł (20% z 223 000) × 37,5%
+    expect(dep.annualKup).toBe(16_725);
+    expect(dep.annualNkup).toBe(27_875);
+    expect(dep.lifetimeNkup).toBe(139_375);
+  });
+
   it('rozbija odpis roczny na część kosztową i wyłączoną', () => {
     const result = purchase({ powertrain: 'emissionLow', depreciationRatePercent: 20 });
     const dep = result.depreciation!;
@@ -135,6 +146,23 @@ describe('leasing operacyjny', () => {
     );
     expect(result.limit?.ratio).toBe(1);
     expect(result.warnings.join(' ')).toContain('wartości samochodu');
+  });
+
+  it('ręczna proporcja obejmuje tylko część kapitałową, bez wartości pojazdu i ostrzeżenia', () => {
+    const result = calculate(
+      input({
+        category: 'leasing',
+        amountMode: 'net',
+        amount: 2000,
+        interestNet: 400,
+        vehicleValue: 0,
+        ratioOverridePercent: 40,
+      }),
+    );
+    // kapitał 1784 × 40% = 713,60, odsetki 446 w całości
+    expect(result.kup).toBe(1159.6);
+    expect(result.nkup).toBe(1070.4);
+    expect(result.warnings.join(' ')).not.toContain('wartości samochodu');
   });
 });
 

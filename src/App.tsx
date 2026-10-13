@@ -48,6 +48,7 @@ export default function App() {
 
   const showVehicle = needsVehicleLimit(input.category);
   const lawfulLimit = statutoryLimit(input.powertrain);
+  const manualRatio = input.ratioOverridePercent !== null;
 
   return (
     <>
@@ -222,6 +223,40 @@ export default function App() {
                   value={input.depreciationRatePercent}
                   onChange={(depreciationRatePercent) => patch({ depreciationRatePercent })}
                   hint="20% metodą liniową; 40% przy stawce indywidualnej dla samochodu używanego."
+                />
+              ) : null}
+
+              {input.category === 'leasing' || input.category === 'purchase' ? (
+                <div className="field">
+                  <label className={`choice${manualRatio ? ' choice-selected' : ''}`}>
+                    <input
+                      type="checkbox"
+                      checked={manualRatio}
+                      onChange={(event) =>
+                        patch({
+                          // Startujemy od proporcji wyliczonej, żeby było co poprawiać.
+                          ratioOverridePercent: event.target.checked
+                            ? Math.round((result.limit?.ratio ?? 1) * 10_000) / 100
+                            : null,
+                        })
+                      }
+                    />
+                    <span>
+                      <span className="choice-title">Wpisz proporcję ręcznie</span>
+                      <span className="choice-desc">
+                        Zamiast proporcji wyliczonej z limitu i wartości pojazdu.
+                      </span>
+                    </span>
+                  </label>
+                </div>
+              ) : null}
+
+              {manualRatio && (input.category === 'leasing' || input.category === 'purchase') ? (
+                <PercentField
+                  label="Proporcja zaliczana do kosztów"
+                  value={input.ratioOverridePercent as number}
+                  onChange={(ratioOverridePercent) => patch({ ratioOverridePercent })}
+                  hint="Część kapitałowa raty lub odpisu, która trafia do kosztów. Ułamki są dozwolone."
                 />
               ) : null}
 
