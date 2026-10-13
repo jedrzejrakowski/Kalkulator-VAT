@@ -49,6 +49,8 @@ export default function App() {
   const showVehicle = needsVehicleLimit(input.category);
   const lawfulLimit = statutoryLimit(input.powertrain);
   const manualRatio = input.ratioOverridePercent !== null;
+  const manualRatioAllowed =
+    input.category === 'leasing' || input.category === 'purchase' || input.category === 'insuranceAC';
 
   return (
     <>
@@ -226,7 +228,25 @@ export default function App() {
                 />
               ) : null}
 
-              {input.category === 'leasing' || input.category === 'purchase' ? (
+              {input.category === 'insuranceAC' ? (
+                <div className="grid-2">
+                  <NumberField
+                    label="Wartość dla celów ubezpieczenia"
+                    value={input.insuredValue}
+                    onChange={(insuredValue) => patch({ insuredValue })}
+                    suffix="zł"
+                  />
+                  <NumberField
+                    label="Limit dla składek AC"
+                    value={input.acLimit}
+                    onChange={(acLimit) => patch({ acLimit })}
+                    suffix="zł"
+                    hint="150 000 zł niezależnie od rodzaju napędu — inaczej niż przy amortyzacji."
+                  />
+                </div>
+              ) : null}
+
+              {manualRatioAllowed ? (
                 <div className="field">
                   <label className={`choice${manualRatio ? ' choice-selected' : ''}`}>
                     <input
@@ -251,31 +271,13 @@ export default function App() {
                 </div>
               ) : null}
 
-              {manualRatio && (input.category === 'leasing' || input.category === 'purchase') ? (
+              {manualRatio && manualRatioAllowed ? (
                 <PercentField
                   label="Proporcja zaliczana do kosztów"
                   value={input.ratioOverridePercent as number}
                   onChange={(ratioOverridePercent) => patch({ ratioOverridePercent })}
-                  hint="Część kapitałowa raty lub odpisu, która trafia do kosztów. Ułamki są dozwolone."
+                  hint="Część kwoty objętej limitem, która trafia do kosztów. Ułamki są dozwolone."
                 />
-              ) : null}
-
-              {input.category === 'insuranceAC' ? (
-                <div className="grid-2">
-                  <NumberField
-                    label="Wartość dla celów ubezpieczenia"
-                    value={input.insuredValue}
-                    onChange={(insuredValue) => patch({ insuredValue })}
-                    suffix="zł"
-                  />
-                  <NumberField
-                    label="Limit dla składek AC"
-                    value={input.acLimit}
-                    onChange={(acLimit) => patch({ acLimit })}
-                    suffix="zł"
-                    hint="150 000 zł niezależnie od rodzaju napędu — inaczej niż przy amortyzacji."
-                  />
-                </div>
               ) : null}
             </section>
           ) : null}

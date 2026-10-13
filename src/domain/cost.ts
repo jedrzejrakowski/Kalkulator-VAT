@@ -210,12 +210,21 @@ function purchase(input: CalculatorInput, vat: VatBreakdown): CostResult {
 
 function insuranceAC(input: CalculatorInput, vat: VatBreakdown): CostResult {
   const costBase = round2(vat.net + vat.nonDeductible);
-  const ratio = limitRatio(input.acLimit, input.insuredValue);
-  const kup = wLimicie(costBase, input.acLimit, input.insuredValue);
+  const ratioOverridden = input.ratioOverridePercent !== null;
+  const limit: LimitInfo = {
+    value: input.acLimit,
+    vehicleValue: input.insuredValue,
+    ratio: ratioOverridden
+      ? (input.ratioOverridePercent as number) / 100
+      : limitRatio(input.acLimit, input.insuredValue),
+    overridden: input.acLimit !== DEFAULT_AC_LIMIT,
+    ratioOverridden,
+  };
+  const kup = wProporcji(costBase, input, limit);
   const nkup = round2(costBase - kup);
 
   const warnings: string[] = [];
-  if (input.insuredValue <= 0) {
+  if (input.insuredValue <= 0 && !ratioOverridden) {
     warnings.push(
       'Nie podano wartości pojazdu przyjętej dla celów ubezpieczenia — limit nie został zastosowany.',
     );
@@ -231,17 +240,11 @@ function insuranceAC(input: CalculatorInput, vat: VatBreakdown): CostResult {
         label: 'Składka w kosztach',
         amount: kup,
         kind: 'kup',
-        note: `proporcja ${formatRate(ratio)} — limit do wartości ubezpieczenia`,
+        note: `proporcja ${formatRate(limit.ratio)} — ${ratioOverridden ? 'wpisana ręcznie' : 'limit do wartości ubezpieczenia'}`,
       },
       { label: 'Składka ponad limit', amount: nkup, kind: 'nkup' },
     ],
-    limit: {
-      value: input.acLimit,
-      vehicleValue: input.insuredValue,
-      ratio,
-      overridden: input.acLimit !== DEFAULT_AC_LIMIT,
-      ratioOverridden: false,
-    },
+    limit,
     depreciation: null,
     legalBasis: [
       'art. 23 ust. 1 pkt 47 ustawy o PIT / art. 16 ust. 1 pkt 49 ustawy o CIT — limit składek na dobrowolne ubezpieczenia majątkowe',
