@@ -7,6 +7,7 @@
  * księgowanie i podstawa prawna. Archiwum składa `zip.ts` — bez biblioteki.
  */
 import { CATEGORY_LABELS, ENTITY_LABELS } from './labels';
+import { round2 } from './money';
 import { archiwum } from './zip';
 import type { CalculationResult, CalculatorInput } from './types';
 
@@ -57,10 +58,16 @@ export function wierszeRozliczenia(input: CalculatorInput, result: CalculationRe
   }
   w.push(
     poz('Rodzaj wydatku', { tekst: CATEGORY_LABELS[input.category] }),
-    poz(`Kwota z faktury (${input.amountMode === 'gross' ? 'brutto' : 'netto'})`, kwota(input.amount)),
-    poz('Stawka VAT', procent(input.vatRatePercent / 100)),
   );
-  if (input.category === 'leasing') w.push(poz('Część odsetkowa raty (netto)', kwota(input.interestNet)));
+  if (input.category === 'leasing') {
+    w.push(
+      poz('Kapitał (netto)', kwota(round2(input.amount - input.interestNet))),
+      poz('Odsetki (netto)', kwota(input.interestNet)),
+    );
+  } else {
+    w.push(poz(`Kwota z faktury (${input.amountMode === 'gross' ? 'brutto' : 'netto'})`, kwota(input.amount)));
+  }
+  w.push(poz('Stawka VAT', procent(input.vatRatePercent / 100)));
 
   w.push(
     { rodzaj: 'sekcja', tekst: 'Podatek naliczony' },

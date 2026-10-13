@@ -166,6 +166,17 @@ describe('leasing operacyjny', () => {
   });
 });
 
+describe('faktura leasingowa z KSeF', () => {
+  it('kapitał i odsetki z faktury dają jej kwoty VAT i brutto', () => {
+    // 17467/09/2026/RL/LS: 2178,14 + 34,78 netto, VAT 508,97, brutto 2721,89.
+    const result = calculate(
+      input({ category: 'leasing', amountMode: 'net', amount: 2212.92, interestNet: 34.78 }),
+    );
+    expect(result.vat.vat).toBe(508.97);
+    expect(result.vat.gross).toBe(2721.89);
+  });
+});
+
 describe('ubezpieczenia', () => {
   it('AC podlega limitowi proporcjonalnemu', () => {
     const result = calculate(

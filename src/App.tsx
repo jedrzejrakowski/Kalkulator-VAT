@@ -13,7 +13,7 @@ import {
   needsVehicleLimit,
 } from './domain/labels';
 import { POWERTRAIN_LABELS, statutoryLimit } from './domain/limits';
-import { formatPln } from './domain/money';
+import { formatPln, round2 } from './domain/money';
 import type {
   AmountMode,
   CalculatorInput,
@@ -68,9 +68,13 @@ export default function App() {
       category,
       vatRatePercent: isVatExempt(category) ? 0 : input.vatRatePercent || 23,
       interestNet: category === 'leasing' ? input.interestNet : 0,
+      // Faktura leasingowa podaje kapitał i odsetki netto — tak też je wpisujemy.
+      amountMode: category === 'leasing' ? 'net' : input.amountMode,
     });
 
   const showVehicle = needsVehicleLimit(input.category);
+  // Rata to kapitał + odsetki; pole „Kapitał” pokazuje różnicę, żeby faktura dała się przepisać wprost.
+  const capitalNet = Math.max(0, round2(input.amount - input.interestNet));
   const lawfulLimit = statutoryLimit(input.powertrain);
   const manualRatio = input.ratioOverridePercent !== null;
   const manualRatioAllowed =
@@ -150,6 +154,28 @@ export default function App() {
               onChange={changeCategory}
             />
 
+            {input.category === 'leasing' ? (
+              <>
+                <div className="grid-2">
+                  <NumberField
+                    label="Kapitał (netto)"
+                    value={capitalNet}
+                    onChange={(capital) => patch({ amount: round2(capital + input.interestNet) })}
+                    suffix="zł"
+                  />
+                  <NumberField
+                    label="Odsetki (netto)"
+                    value={input.interestNet}
+                    onChange={(interestNet) => patch({ interestNet, amount: round2(capitalNet + interestNet) })}
+                    suffix="zł"
+                  />
+                </div>
+                <p className="field-hint" style={{ marginTop: -8, marginBottom: 16 }}>
+                  Przepisz obie pozycje z faktury leasingowej. Odsetki są kosztem w całości — limit
+                  obejmuje wyłącznie kapitał.
+                </p>
+              </>
+            ) : (
             <div className="field">
               <span className="field-label">Kwota z faktury</span>
               <div className="segmented" style={{ marginBottom: 10 }}>
@@ -171,6 +197,7 @@ export default function App() {
                 ariaLabel={`Kwota z faktury ${input.amountMode === 'gross' ? 'brutto' : 'netto'}`}
               />
             </div>
+            )}
 
             {isVatExempt(input.category) ? (
               <p className="field-hint">
@@ -186,15 +213,6 @@ export default function App() {
               />
             )}
 
-            {input.category === 'leasing' ? (
-              <NumberField
-                label="Część odsetkowa raty (netto)"
-                value={input.interestNet}
-                onChange={(interestNet) => patch({ interestNet })}
-                suffix="zł"
-                hint="Z harmonogramu leasingu. Odsetki są kosztem w całości — limit obejmuje wyłącznie część kapitałową."
-              />
-            ) : null}
           </section>
 
           {showVehicle ? (
