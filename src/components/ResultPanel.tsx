@@ -13,6 +13,17 @@ const KIND_CLASS: Record<string, string> = {
   info: '',
 };
 
+/**
+ * Eksport przez okno drukowania przeglądarki — ma ono opcję „Zapisz jako PDF”,
+ * więc nie potrzeba biblioteki. Podstawę prawną rozwijamy, żeby trafiła do pliku.
+ */
+function exportPdf() {
+  document.querySelectorAll('details').forEach((details) => {
+    details.open = true;
+  });
+  window.print();
+}
+
 export function ResultPanel({ input, result }: Props) {
   const { vat, depreciation, limit } = result;
   const hasAmount = vat.gross > 0;
@@ -184,6 +195,10 @@ export function ResultPanel({ input, result }: Props) {
               przepisów przejściowych do limitów sprawdź stan prawny na dzień poniesienia wydatku.
             </p>
           </details>
+
+          <button type="button" className="export-button no-print" onClick={exportPdf}>
+            Zapisz jako PDF
+          </button>
         </section>
       ) : null}
     </div>

@@ -26,6 +26,9 @@ połowy odliczeniu podlega 50%, czyli 25% całości.
 Prewspółczynnik i proporcję sprzedaży zaokrągla się w górę do pełnych procentów
 (art. 86 ust. 2g i art. 90 ust. 4 ustawy o VAT), dlatego pola przyjmują wyłącznie liczby całkowite.
 
+Przycisk „Zapisz jako PDF” pod wynikiem otwiera okno drukowania przeglądarki — tam wybierz
+„Zapisz jako PDF”. Plik zawiera dane wejściowe, wynik, opis księgowania i podstawę prawną.
+
 ## Rodzaje wydatków
 
 | Wydatek | Koszt podatkowy |
