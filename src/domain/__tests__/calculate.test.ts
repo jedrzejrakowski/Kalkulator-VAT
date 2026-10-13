@@ -181,6 +181,24 @@ describe('ubezpieczenia', () => {
     expect(result.nkup).toBe(3000);
   });
 
+  it('AC przyjmuje proporcję wpisaną ręcznie zamiast limitu do wartości ubezpieczenia', () => {
+    const result = calculate(
+      input({
+        category: 'insuranceAC',
+        amountMode: 'net',
+        amount: 6000,
+        vatRatePercent: 0,
+        insuredValue: 0,
+        ratioOverridePercent: 30,
+      }),
+    );
+    expect(result.limit?.ratio).toBe(0.3);
+    expect(result.limit?.ratioOverridden).toBe(true);
+    expect(result.kup).toBe(1800);
+    expect(result.nkup).toBe(4200);
+    expect(result.warnings).toEqual([]);
+  });
+
   it('OC jest kosztem w całości', () => {
     const result = calculate(
       input({ category: 'insuranceOC', amountMode: 'net', amount: 1200, vatRatePercent: 0 }),
