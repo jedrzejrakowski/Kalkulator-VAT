@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { Choice, NumberField, PercentField, SelectField } from './components/fields';
 import { Logo } from './components/Logo';
 import { ResultPanel } from './components/ResultPanel';
@@ -31,6 +32,29 @@ const VAT_RATE_OPTIONS = VAT_RATES.map((rate) => ({
   label: `${rate}%`,
 }));
 
+/**
+ * Data wyliczenia widoczna tylko na wydruku i w PDF.
+ *
+ * Odświeżana przy `beforeprint`, więc karta otwarta od wczoraj drukuje się
+ * z dzisiejszą datą — także przy Ctrl+P. `flushSync`, bo przeglądarka robi
+ * zrzut strony zaraz po tym zdarzeniu i nie czeka na zwykły render Reacta.
+ */
+function PrintDate() {
+  const [date, setDate] = useState(() => new Date());
+
+  useEffect(() => {
+    const refresh = () => flushSync(() => setDate(new Date()));
+    window.addEventListener('beforeprint', refresh);
+    return () => window.removeEventListener('beforeprint', refresh);
+  }, []);
+
+  return (
+    <p className="print-only page-header__date">
+      Data wyliczenia: {date.toLocaleString('pl-PL', { dateStyle: 'long', timeStyle: 'short' })}
+    </p>
+  );
+}
+
 export default function App() {
   const [input, setInput] = useState<CalculatorInput>(DEFAULT_INPUT);
   const result = useMemo(() => calculate(input), [input]);
@@ -60,6 +84,7 @@ export default function App() {
         <Logo size={64} className="page-header__mark" />
         <h1>Kalkulator celów mieszanych</h1>
         <span className="page-header__sub">Samochód osobowy w firmie</span>
+        <PrintDate />
       </header>
 
       <div className="layout">
