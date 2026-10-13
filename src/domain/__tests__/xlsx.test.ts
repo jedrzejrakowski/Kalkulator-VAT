@@ -76,6 +76,16 @@ describe('arkusz rozliczenia', () => {
     expect(xml).not.toContain('Kwota z faktury');
   });
 
+  it('dla fundacji zapisuje podział rachunkowy', () => {
+    const { xml } = arkusz({
+      entityType: 'ngo', prePercent: 50, businessSharePercent: 50,
+      category: 'leasing', amountMode: 'net', amount: 2212.92, interestNet: 34.78,
+    });
+    expect(xml).toMatch(/Działalność statutowa<\/t><\/is><\/c><c r="B\d+" s="1"><v>1343.56<\/v>/);
+    expect(xml).toMatch(/Działalność gospodarcza<\/t><\/is><\/c><c r="B\d+" s="1"><v>1216.31<\/v>/);
+    expect(xml).toContain('netto 1089,07 + nieodliczony VAT 127,24');
+  });
+
   it('pokazuje wskaźniki organizacji tylko dla fundacji', () => {
     expect(arkusz({ amount: 1230 }).xml).not.toContain('Prewspółczynnik');
     const { xml } = arkusz({ amount: 1230, entityType: 'ngo', prePercent: 37 });

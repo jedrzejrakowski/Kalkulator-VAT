@@ -79,6 +79,13 @@ W trybie fundacji dostępne jest pole „Udział działalności gospodarczej w k
 wyliczony koszt podatkowy między działalność gospodarczą i statutową. Nie wynika ono wprost
 z ustawy — odzwierciedla politykę rachunkowości organizacji i domyślnie wynosi 100%.
 
+Osobno kalkulator podaje **podział rachunkowy** całego kosztu (np. na konta 500 i 501).
+Netto dzieli się tym samym udziałem, a VAT idzie za swoim źródłem: część statutowa nie ma
+prawa do odliczenia, więc dostaje cały podatek przypadający na nią według prewspółczynnika;
+gospodarcza — tylko tę część swojego podatku, której nie odliczono. Odsetki leasingowe netto
+zostają kosztem finansowym, poza podziałem. Przy zakupie samochodu podziału nie ma —
+kosztem są dopiero odpisy amortyzacyjne.
+
 ## Zaokrąglenie do groszy
 
 Wszystkie iloczyny i ilorazy — odliczenie VAT, podział 75%, proporcje limitu,

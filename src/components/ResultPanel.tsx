@@ -176,6 +176,49 @@ export function ResultPanel({ input, result }: Props) {
                 </table>
               </>
             ) : null}
+
+            {result.allocation ? (
+              <>
+                <h3 className="subhead">Podział rachunkowy</h3>
+                <table className="figures">
+                  <tbody>
+                    <tr className="row-statutory">
+                      <th scope="row">
+                        Działalność statutowa
+                        <span className="row-note">
+                          netto {formatPln(result.allocation.statutory.net)} + VAT{' '}
+                          {formatPln(result.allocation.statutory.vat)} bez prawa do odliczenia
+                        </span>
+                      </th>
+                      <td>{formatPln(result.allocation.statutory.total)}</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">
+                        Działalność gospodarcza
+                        <span className="row-note">
+                          netto {formatPln(result.allocation.business.net)} + nieodliczony VAT{' '}
+                          {formatPln(result.allocation.business.vat)}
+                        </span>
+                      </th>
+                      <td>{formatPln(result.allocation.business.total)}</td>
+                    </tr>
+                    {result.allocation.financial > 0 ? (
+                      <tr>
+                        <th scope="row">
+                          Odsetki — koszty finansowe
+                          <span className="row-note">netto, poza podziałem</span>
+                        </th>
+                        <td>{formatPln(result.allocation.financial)}</td>
+                      </tr>
+                    ) : null}
+                  </tbody>
+                </table>
+                <p className="field-hint">
+                  Netto według udziału działalności gospodarczej w koszcie (
+                  {input.businessSharePercent}%), VAT według prewspółczynnika ({input.prePercent}%).
+                </p>
+              </>
+            ) : null}
           </>
         ) : (
           <p className="empty">Wpisz kwotę z faktury, aby zobaczyć rozliczenie.</p>

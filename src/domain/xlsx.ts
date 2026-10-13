@@ -7,7 +7,7 @@
  * księgowanie i podstawa prawna. Archiwum składa `zip.ts` — bez biblioteki.
  */
 import { CATEGORY_LABELS, ENTITY_LABELS } from './labels';
-import { round2 } from './money';
+import { formatAmount, round2 } from './money';
 import { archiwum } from './zip';
 import type { CalculationResult, CalculatorInput } from './types';
 
@@ -105,6 +105,24 @@ export function wierszeRozliczenia(input: CalculatorInput, result: CalculationRe
       poz('— w tym poza kosztami', kwota(depreciation.monthlyNkup)),
       poz('Nadwyżka ponad limit', kwota(depreciation.lifetimeNkup), 'nigdy nie stanie się kosztem'),
     );
+  }
+
+  const a = result.allocation;
+  if (a) {
+    w.push(
+      { rodzaj: 'sekcja', tekst: 'Podział rachunkowy' },
+      poz(
+        'Działalność statutowa',
+        kwota(a.statutory.total),
+        `netto ${formatAmount(a.statutory.net)} + VAT ${formatAmount(a.statutory.vat)} bez prawa do odliczenia`,
+      ),
+      poz(
+        'Działalność gospodarcza',
+        kwota(a.business.total),
+        `netto ${formatAmount(a.business.net)} + nieodliczony VAT ${formatAmount(a.business.vat)}`,
+      ),
+    );
+    if (a.financial > 0) w.push(poz('Odsetki — koszty finansowe', kwota(a.financial), 'netto, poza podziałem'));
   }
 
   w.push(
