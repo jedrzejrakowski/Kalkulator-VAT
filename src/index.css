@@ -574,6 +574,14 @@ ul.legal {
 }
 
 /* --- wydruk dekretu --- */
+.print-only { display: none; }
+
+.page-header__date {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
 
 @media print {
   body { background: #ffffff; }
@@ -594,7 +602,10 @@ ul.legal {
   .results { position: static; }
 
   .no-print { display: none; }
+
+  .print-only { display: block; }
 }
+
 
 .export-button {
   margin-top: 16px;

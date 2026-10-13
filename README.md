@@ -27,7 +27,8 @@ Prewspółczynnik i proporcję sprzedaży zaokrągla się w górę do pełnych p
 (art. 86 ust. 2g i art. 90 ust. 4 ustawy o VAT), dlatego pola przyjmują wyłącznie liczby całkowite.
 
 Przycisk „Zapisz jako PDF” pod wynikiem otwiera okno drukowania przeglądarki — tam wybierz
-„Zapisz jako PDF”. Plik zawiera dane wejściowe, wynik, opis księgowania i podstawę prawną.
+„Zapisz jako PDF”. Plik zawiera datę wyliczenia, dane wejściowe, wynik, opis księgowania
+i podstawę prawną.
 
 ## Rodzaje wydatków
 
