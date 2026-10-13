@@ -5,6 +5,8 @@ mieszanych, czyli bez ewidencji przebiegu i bez zgłoszenia VAT-26. Odpowiada na
 ile VAT-u podlega odliczeniu, ile podatku powiększa wartość kosztu i jaka część wydatku trafia
 do kosztów uzyskania przychodu.
 
+**Kalkulator online: https://samochod.apkownia.cloud**
+
 ## Dwa tryby rozliczenia VAT
 
 **Działalność gospodarcza** — pełne prawo do odliczenia ograniczone do 50% z uwagi na użytek
