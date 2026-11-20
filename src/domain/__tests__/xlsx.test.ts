@@ -81,9 +81,10 @@ describe('arkusz rozliczenia', () => {
       entityType: 'ngo', prePercent: 50, businessSharePercent: 50,
       category: 'leasing', amountMode: 'net', amount: 2212.92, interestNet: 34.78,
     });
-    expect(xml).toMatch(/Działalność statutowa<\/t><\/is><\/c><c r="B\d+" s="1"><v>1343.56<\/v>/);
-    expect(xml).toMatch(/Działalność gospodarcza<\/t><\/is><\/c><c r="B\d+" s="1"><v>1216.31<\/v>/);
-    expect(xml).toContain('netto 1089,07 + nieodliczony VAT 127,24');
+    expect(xml).toMatch(/Działalność statutowa<\/t><\/is><\/c><c r="B\d+" s="1"><v>1360.95<\/v>/);
+    expect(xml).toMatch(/Działalność gospodarcza<\/t><\/is><\/c><c r="B\d+" s="1"><v>1233.7<\/v>/);
+    expect(xml).toContain('netto 1106,46 + nieodliczony VAT 127,24');
+    expect(xml).toContain('w tym odsetki, działalność gospodarcza');
   });
 
   it('pokazuje wskaźniki organizacji tylko dla fundacji', () => {

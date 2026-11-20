@@ -122,7 +122,12 @@ export function wierszeRozliczenia(input: CalculatorInput, result: CalculationRe
         `netto ${formatAmount(a.business.net)} + nieodliczony VAT ${formatAmount(a.business.vat)}`,
       ),
     );
-    if (a.financial > 0) w.push(poz('Odsetki — koszty finansowe', kwota(a.financial), 'netto, poza podziałem'));
+    if (a.statutory.odsetki > 0 || a.business.odsetki > 0) {
+      w.push(
+        poz('— w tym odsetki, działalność statutowa', kwota(a.statutory.odsetki), 'netto + VAT'),
+        poz('— w tym odsetki, działalność gospodarcza', kwota(a.business.odsetki), 'netto + nieodliczony VAT'),
+      );
+    }
   }
 
   w.push(

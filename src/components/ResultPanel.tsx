@@ -188,6 +188,9 @@ export function ResultPanel({ input, result }: Props) {
                         <span className="row-note">
                           netto {formatPln(result.allocation.statutory.net)} + VAT{' '}
                           {formatPln(result.allocation.statutory.vat)} bez prawa do odliczenia
+                          {result.allocation.statutory.odsetki > 0
+                            ? `; w tym odsetki ${formatPln(result.allocation.statutory.odsetki)}`
+                            : ''}
                         </span>
                       </th>
                       <td>{formatPln(result.allocation.statutory.total)}</td>
@@ -198,24 +201,19 @@ export function ResultPanel({ input, result }: Props) {
                         <span className="row-note">
                           netto {formatPln(result.allocation.business.net)} + nieodliczony VAT{' '}
                           {formatPln(result.allocation.business.vat)}
+                          {result.allocation.business.odsetki > 0
+                            ? `; w tym odsetki ${formatPln(result.allocation.business.odsetki)}`
+                            : ''}
                         </span>
                       </th>
                       <td>{formatPln(result.allocation.business.total)}</td>
                     </tr>
-                    {result.allocation.financial > 0 ? (
-                      <tr>
-                        <th scope="row">
-                          Odsetki — koszty finansowe
-                          <span className="row-note">netto, poza podziałem</span>
-                        </th>
-                        <td>{formatPln(result.allocation.financial)}</td>
-                      </tr>
-                    ) : null}
                   </tbody>
                 </table>
                 <p className="field-hint">
                   Netto według udziału działalności gospodarczej w koszcie (
-                  {input.businessSharePercent}%), VAT według prewspółczynnika ({input.prePercent}%).
+                  {input.businessSharePercent}%), VAT według prewspółczynnika ({input.prePercent}%). Limity
+                  i reguła 75% dotyczą tylko części gospodarczej.
                 </p>
               </>
             ) : null}

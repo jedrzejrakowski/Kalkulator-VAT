@@ -171,8 +171,8 @@ export default function App() {
                   />
                 </div>
                 <p className="field-hint" style={{ marginTop: -8, marginBottom: 16 }}>
-                  Przepisz obie pozycje z faktury leasingowej. Odsetki są kosztem w całości — limit
-                  obejmuje wyłącznie kapitał.
+                  Przepisz obie pozycje z faktury leasingowej. Limit wartości pojazdu obejmuje
+                  wyłącznie kapitał; odsetki idą do kosztów w 75%, jak inne koszty używania.
                 </p>
               </>
             ) : (

@@ -115,14 +115,14 @@ export interface AllocationPart {
   /** VAT, który nie podlega odliczeniu i powiększa koszt tej działalności. */
   vat: number;
   total: number;
+  /** W tym część odsetkowa raty leasingowej (netto + VAT) — przy innych wydatkach 0. */
+  odsetki: number;
 }
 
 /** Podział rachunkowy kosztu organizacji, np. na konta 500 i 501. */
 export interface Allocation {
   statutory: AllocationPart;
   business: AllocationPart;
-  /** Odsetki leasingowe netto — koszt finansowy, poza podziałem. */
-  financial: number;
 }
 
 export interface CalculationResult {
@@ -131,7 +131,7 @@ export interface CalculationResult {
   costBase: number;
   kup: number;
   nkup: number;
-  /** Część kosztu przypisana do działalności statutowej organizacji. */
+  /** Część kosztu przypisana do działalności statutowej organizacji (netto + cały jej VAT). */
   statutory: number;
   lines: CostLine[];
   booking: string[];

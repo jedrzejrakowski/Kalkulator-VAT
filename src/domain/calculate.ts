@@ -1,9 +1,16 @@
-import { calculateCost } from './cost';
+import { calculateCost, type Czesc, type PodstawaKosztu } from './cost';
 import { formatPln } from './money';
 import { ulamek } from './grosze';
 import { round2 } from './money';
 import { calculateVat } from './vat';
-import type { Allocation, CalculationResult, CalculatorInput, CostLine, VatBreakdown } from './types';
+import type {
+  Allocation,
+  AllocationPart,
+  CalculationResult,
+  CalculatorInput,
+  CostLine,
+  VatBreakdown,
+} from './types';
 
 function bookingNotes(input: CalculatorInput, result: Omit<CalculationResult, 'booking'>): string[] {
   const notes: string[] = [];
@@ -25,12 +32,12 @@ function bookingNotes(input: CalculatorInput, result: Omit<CalculationResult, 'b
   switch (input.category) {
     case 'operating':
       notes.push(
-        `Na konto kosztów rodzajowych: ${formatPln(result.costBase)}, z czego ${formatPln(result.kup + result.statutory)} stanowi koszt podatkowy, a ${formatPln(result.nkup)} wyksięguj jako koszt niestanowiący kosztu uzyskania przychodu.`,
+        `Na konto kosztów rodzajowych: ${formatPln(result.costBase)}, z czego ${formatPln(result.kup)} stanowi koszt podatkowy, a ${formatPln(result.nkup)} wyksięguj jako koszt niestanowiący kosztu uzyskania przychodu.`,
       );
       break;
     case 'leasing':
       notes.push(
-        `Ratę zaksięguj w kwocie ${formatPln(result.costBase)}; poza kosztami podatkowymi pozostaje ${formatPln(result.nkup)} części kapitałowej ponad limit.`,
+        `Ratę zaksięguj w kwocie ${formatPln(result.costBase)}; poza kosztami podatkowymi pozostaje ${formatPln(result.nkup)} — część kapitałowa ponad limit i 25% części odsetkowej.`,
       );
       break;
     case 'purchase':
@@ -58,65 +65,112 @@ function bookingNotes(input: CalculatorInput, result: Omit<CalculationResult, 'b
       break;
   }
 
-  if (input.entityType === 'ngo' && result.statutory > 0) {
+  if (result.allocation && result.statutory > 0) {
     notes.push(
-      `Alokacja: ${formatPln(result.kup)} przypada na działalność gospodarczą, a ${formatPln(result.statutory)} na działalność statutową — ta część nie wchodzi do wyniku podatkowego działalności gospodarczej.`,
+      `Alokacja: ${formatPln(result.allocation.business.total)} przypada na działalność gospodarczą (koszt podatkowy ${formatPln(result.kup)}, poza kosztami ${formatPln(result.nkup)}), a ${formatPln(result.statutory)} na działalność statutową — ta część nie wchodzi do wyniku podatkowego i nie podlega limitom.`,
     );
   }
 
   return notes;
 }
 
+/** Część faktury (kapitał albo odsetki) ze swoim VAT-em. */
+interface Skladnik {
+  net: number;
+  vat: number;
+  deductible: number;
+}
+
 /**
- * Podział rachunkowy kosztu organizacji między działalność statutową i gospodarczą.
+ * Rozbicie faktury na część główną i odsetkową raty leasingowej.
+ *
+ * VAT i kwotę odliczenia dzielimy proporcjonalnie do netto; odsetki dostają
+ * resztę z odejmowania, żeby obie części zawsze sumowały się do faktury.
+ */
+function skladniki(input: CalculatorInput, vat: VatBreakdown): { glowna: Skladnik; odsetki: Skladnik } {
+  const intNet = input.category === 'leasing' ? Math.max(0, Math.min(round2(input.interestNet), vat.net)) : 0;
+  const capNet = round2(vat.net - intNet);
+  const naKapital = (kwota: number) => (vat.net > 0 ? ulamek([kwota, capNet], [vat.net]) : kwota);
+  const capVat = naKapital(vat.vat);
+  const capDed = naKapital(vat.deductible);
+  return {
+    glowna: { net: capNet, vat: capVat, deductible: capDed },
+    odsetki: { net: intNet, vat: round2(vat.vat - capVat), deductible: round2(vat.deductible - capDed) },
+  };
+}
+
+/**
+ * Podział organizacji: część statutowa i gospodarcza, osobno dla każdej części faktury.
  *
  * Netto dzielimy udziałem z polityki rachunkowości. VAT idzie za swoim źródłem:
  * część statutowa nie ma prawa do odliczenia, więc dostaje cały podatek
  * przypadający na nią według prewspółczynnika; gospodarcza — resztę, której
- * nie odliczono. Odsetki leasingowe zostają kosztem finansowym, poza podziałem.
+ * nie odliczono. Połówkę grosza zaokrąglamy na korzyść części statutowej,
+ * a gospodarcza dostaje resztę.
+ */
+function podziel(s: Skladnik, input: CalculatorInput): { statutory: Czesc; business: Czesc } {
+  const udzialStatutowy = Number((100 - input.businessSharePercent).toFixed(6));
+  const statNet = ulamek([s.net, udzialStatutowy], [100]);
+  const statVat = ulamek([s.vat, 100 - input.prePercent], [100]);
+  return {
+    statutory: { net: statNet, nonDeductible: statVat },
+    business: { net: round2(s.net - statNet), nonDeductible: round2(s.vat - statVat - s.deductible) },
+  };
+}
+
+function czesc(glowna: Czesc, odsetki: Czesc): AllocationPart {
+  const net = round2(glowna.net + odsetki.net);
+  const vat = round2(glowna.nonDeductible + odsetki.nonDeductible);
+  return { net, vat, total: round2(net + vat), odsetki: round2(odsetki.net + odsetki.nonDeductible) };
+}
+
+/**
+ * Co trafia do rachunku podatkowego działalności gospodarczej, a co do statutowej.
+ *
+ * Kolejność ma znaczenie: najpierw podział, potem limity. Część statutowa nie
+ * jest kosztem podatkowym, więc ani limit wartości pojazdu, ani reguła 75% jej
+ * nie dotyczą — liczone od całości obcinałyby ją, a część gospodarczą zawyżały.
  * Zakupu nie dzielimy — kosztem są dopiero odpisy amortyzacyjne.
  */
-function allocate(input: CalculatorInput, vat: VatBreakdown): Allocation | null {
-  if (input.entityType !== 'ngo' || input.category === 'purchase') return null;
+function rozdziel(
+  input: CalculatorInput,
+  vat: VatBreakdown,
+): { podstawa: PodstawaKosztu; allocation: Allocation | null } {
+  const { glowna, odsetki } = skladniki(input, vat);
+  const bezPodzialu = (s: Skladnik): Czesc => ({ net: s.net, nonDeductible: round2(s.vat - s.deductible) });
 
-  const financial = input.category === 'leasing' ? Math.min(round2(input.interestNet), vat.net) : 0;
-  const base = round2(vat.net - financial);
-  const businessNet = ulamek([base, input.businessSharePercent], [100]);
-  const statutoryNet = round2(base - businessNet);
-  // Prewspółczynnik to pełne procenty, więc 100 − pre liczy się dokładnie.
-  const statutoryVat = ulamek([vat.vat, 100 - input.prePercent], [100]);
-  const businessVat = round2(vat.nonDeductible - statutoryVat);
+  if (input.entityType !== 'ngo' || input.category === 'purchase') {
+    return { podstawa: { glowna: bezPodzialu(glowna), odsetki: bezPodzialu(odsetki) }, allocation: null };
+  }
 
+  const g = podziel(glowna, input);
+  const o = podziel(odsetki, input);
   return {
-    statutory: { net: statutoryNet, vat: statutoryVat, total: round2(statutoryNet + statutoryVat) },
-    business: { net: businessNet, vat: businessVat, total: round2(businessNet + businessVat) },
-    financial,
+    podstawa: { glowna: g.business, odsetki: o.business },
+    allocation: { statutory: czesc(g.statutory, o.statutory), business: czesc(g.business, o.business) },
   };
 }
 
 export function calculate(input: CalculatorInput): CalculationResult {
   const vat = calculateVat(input);
-  const cost = calculateCost(input, vat);
+  const { podstawa, allocation } = rozdziel(input, vat);
+  const cost = calculateCost(input, podstawa);
 
-  const lines: CostLine[] = [...cost.lines];
   const warnings: string[] = [...cost.warnings];
+  const statutory = allocation ? allocation.statutory.total : 0;
 
-  // Organizacja dzieli koszt między działalność gospodarczą i statutową według
-  // własnej polityki rachunkowości — kalkulator tylko wykonuje wskazany podział.
-  let kup = cost.kup;
-  let statutory = 0;
-  if (input.entityType === 'ngo' && input.businessSharePercent < 100) {
-    const business = ulamek([cost.kup, input.businessSharePercent], [100]);
-    statutory = round2(cost.kup - business);
-    kup = business;
-    if (statutory > 0) {
-      lines.push({
-        label: 'Część przypisana do działalności statutowej',
-        amount: statutory,
-        kind: 'statutory',
-        note: `${100 - input.businessSharePercent}% kosztu podatkowego`,
-      });
-    }
+  // W organizacji linie kosztu opisują już tylko część gospodarczą — statutowa
+  // idzie osobną linią, bez limitów.
+  const lines: CostLine[] = cost.lines.map((l, i) =>
+    allocation && i === 0 && l.kind === 'info' ? { ...l, label: `${l.label} — część gospodarcza` } : l,
+  );
+  if (allocation && statutory > 0) {
+    lines.unshift({
+      label: 'Część przypisana do działalności statutowej',
+      amount: statutory,
+      kind: 'statutory',
+      note: `netto ${formatPln(allocation.statutory.net)} + VAT ${formatPln(allocation.statutory.vat)} bez prawa do odliczenia — poza rachunkiem podatkowym`,
+    });
   }
 
   const legalBasis = [
@@ -139,8 +193,8 @@ export function calculate(input: CalculatorInput): CalculationResult {
 
   const partial: Omit<CalculationResult, 'booking'> = {
     vat,
-    costBase: cost.costBase,
-    kup,
+    costBase: round2(cost.costBase + statutory),
+    kup: cost.kup,
     nkup: cost.nkup,
     statutory,
     lines,
@@ -148,7 +202,7 @@ export function calculate(input: CalculatorInput): CalculationResult {
     warnings,
     limit: cost.limit,
     depreciation: cost.depreciation,
-    allocation: allocate(input, vat),
+    allocation,
   };
 
   return { ...partial, booking: bookingNotes(input, partial) };

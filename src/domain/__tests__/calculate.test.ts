@@ -54,13 +54,15 @@ describe('fundacja z działalnością gospodarczą i statutową', () => {
     expect(result.vat.deductible).toBe(55.2);
   });
 
-  it('dzieli koszt podatkowy według wskazanej alokacji', () => {
+  it('najpierw dzieli koszt według alokacji, a regułę 75% stosuje tylko do części gospodarczej', () => {
     const result = calculate(
       input({ entityType: 'ngo', prePercent: 50, businessSharePercent: 40, amount: 1230 }),
     );
-    const total = result.kup + result.statutory;
-    expect(total).toBeCloseTo(result.costBase * 0.75, 2);
-    expect(result.statutory).toBeGreaterThan(result.kup);
+    // netto 1000, VAT 230: statutowa 600 + 115 (cały VAT jej połowy), gospodarcza 400 + 57,50
+    expect(result.statutory).toBe(715);
+    expect(result.kup).toBe(343.13); // 457,50 × 75%
+    expect(result.nkup).toBe(114.37);
+    expect(result.statutory + result.kup + result.nkup).toBeCloseTo(result.costBase, 10);
   });
 
   it('obie części VAT sumują się do podatku z faktury', () => {
@@ -119,7 +121,7 @@ describe('limity wartości pojazdu od 2026 roku', () => {
 });
 
 describe('leasing operacyjny', () => {
-  it('limit obejmuje część kapitałową, a odsetki są kosztem w całości', () => {
+  it('limit obejmuje część kapitałową, a odsetki — jako koszt używania — idą w 75%', () => {
     const result = calculate(
       input({
         category: 'leasing',
@@ -135,9 +137,9 @@ describe('leasing operacyjny', () => {
     // netto 2000, VAT 460, nieodliczony 230 -> podstawa 2230
     expect(result.costBase).toBe(2230);
     // odsetki 400 netto to 20% raty, więc 46 zł nieodliczonego VAT
-    // kapitał: 1784 * 50% = 892 KUP, odsetki 446 w całości
-    expect(result.kup).toBeCloseTo(1338, 2);
-    expect(result.nkup).toBeCloseTo(892, 2);
+    // kapitał: 1784 × 50% = 892 KUP; odsetki 446 × 75% = 334,50 KUP
+    expect(result.kup).toBe(1226.5);
+    expect(result.nkup).toBe(1003.5);
   });
 
   it('bez wartości pojazdu ostrzega i nie stosuje limitu', () => {
@@ -159,9 +161,9 @@ describe('leasing operacyjny', () => {
         ratioOverridePercent: 40,
       }),
     );
-    // kapitał 1784 × 40% = 713,60, odsetki 446 w całości
-    expect(result.kup).toBe(1159.6);
-    expect(result.nkup).toBe(1070.4);
+    // kapitał 1784 × 40% = 713,60; odsetki 446 × 75% = 334,50
+    expect(result.kup).toBe(1048.1);
+    expect(result.nkup).toBe(1181.9);
     expect(result.warnings.join(' ')).not.toContain('wartości samochodu');
   });
 });
@@ -195,22 +197,21 @@ describe('podział rachunkowy organizacji', () => {
       }),
     );
 
-  it('zgadza się z dekretem księgowym kont 500 i 501', () => {
+  it('dzieli kapitał i odsetki osobno, każde z własnym VAT-em', () => {
     const a = rata().allocation!;
-    // Statutowa: połowa kapitału netto i cały VAT jej połowy (bez prawa do odliczenia).
-    expect(a.statutory).toEqual({ net: 1089.07, vat: 254.49, total: 1343.56 });
-    // Gospodarcza: połowa kapitału netto i tylko nieodliczona część jej VAT.
-    expect(a.business).toEqual({ net: 1089.07, vat: 127.24, total: 1216.31 });
-    // Odsetki netto zostają kosztem finansowym, poza podziałem.
-    expect(a.financial).toBe(34.78);
+    // Statutowa: połowa netto (kapitał i odsetki) i cały VAT jej połowy.
+    expect(a.statutory).toEqual({ net: 1106.46, vat: 254.49, total: 1360.95, odsetki: 21.39 });
+    // Gospodarcza: połowa netto i tylko nieodliczona część jej VAT.
+    expect(a.business).toEqual({ net: 1106.46, vat: 127.24, total: 1233.7, odsetki: 19.39 });
   });
 
   it('części sumują się do całego kosztu', () => {
     for (const businessSharePercent of [0, 37.5, 58.44, 100]) {
       const r = rata({ businessSharePercent, prePercent: 37, salesPercent: 88 });
       const a = r.allocation!;
-      expect(a.statutory.total + a.business.total + a.financial).toBeCloseTo(r.costBase, 10);
+      expect(a.statutory.total + a.business.total).toBeCloseTo(r.costBase, 10);
       expect(a.statutory.vat + a.business.vat).toBeCloseTo(r.vat.nonDeductible, 10);
+      expect(r.statutory + r.kup + r.nkup).toBeCloseTo(r.costBase, 10);
     }
   });
 
@@ -262,11 +263,9 @@ describe('ubezpieczenia', () => {
   });
 });
 
-describe('przypadek z praktyki — rata leasingowa w fundacji', () => {
-  // Odtworzenie rzeczywistego dekretu: faktura 80 775,00 zł brutto,
-  // prewspółczynnik 50%, klucz podziału kosztu 58,44%, wartość auta
-  // w granicach limitu. Różnice groszowe wynikają z zaokrąglenia netto
-  // na fakturze (65 670,74) wobec 80 775 / 1,23 = 65 670,73.
+describe('rata leasingowa w fundacji z kluczem kosztów 58,44%', () => {
+  // Faktura 80 775,00 zł brutto, prewspółczynnik 50%, udział działalności
+  // gospodarczej w koszcie 58,44%, wartość auta w granicach limitu.
   const result = calculate(
     input({
       entityType: 'ngo',
@@ -291,10 +290,10 @@ describe('przypadek z praktyki — rata leasingowa w fundacji', () => {
     expect(result.costBase).toBeCloseTo(76_998.94, 1);
   });
 
-  it('dzieli podstawę kluczem 58,44% bez reguły 75%', () => {
-    // Rata leasingowa nie jest kosztem używania, więc limit 75% jej nie dotyczy.
-    expect(result.kup).toBeCloseTo(44_998.18, 1);
-    expect(result.statutory).toBeCloseTo(32_000.76, 1);
+  it('statutowa dostaje 41,56% netto i cały VAT swojej połowy, gospodarcza resztę', () => {
+    // Bez odsetek i w granicach limitu część gospodarcza w całości jest kosztem.
+    expect(result.statutory).toBe(34_844.9);
+    expect(result.kup).toBe(42_154.03);
     expect(result.nkup).toBe(0);
   });
 
