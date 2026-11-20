@@ -1,16 +1,28 @@
 import { DEFAULT_AC_LIMIT, limitRatio, statutoryLimit } from './limits';
 import { iloczyn, iloraz, ulamek } from './grosze';
 import { formatRate, round2 } from './money';
-import type {
-  CalculatorInput,
-  CostLine,
-  DepreciationInfo,
-  LimitInfo,
-  VatBreakdown,
-} from './types';
+import type { CalculatorInput, CostLine, DepreciationInfo, LimitInfo } from './types';
 
 /** Część wydatków eksploatacyjnych stanowiąca koszt przy użytku mieszanym. */
 export const OPERATING_COST_FACTOR = 0.75;
+
+/** Kwota netto i VAT, którego nie odliczono — razem tworzą koszt. */
+export interface Czesc {
+  net: number;
+  nonDeductible: number;
+}
+
+/**
+ * Podstawa kosztu w działalności gospodarczej, rozbita na część główną
+ * (przy leasingu — kapitałową) i odsetkową. W organizacji to już tylko część
+ * gospodarcza: część statutowa nie jest kosztem podatkowym i limitom nie podlega.
+ */
+export interface PodstawaKosztu {
+  glowna: Czesc;
+  odsetki: Czesc;
+}
+
+const suma = (c: Czesc) => round2(c.net + c.nonDeductible);
 
 export interface CostResult {
   costBase: number;
@@ -56,8 +68,8 @@ function opisProporcji(limit: LimitInfo): string {
   return `proporcja ${formatRate(limit.ratio)} — ${limit.ratioOverridden ? 'wpisana ręcznie' : 'limit do wartości pojazdu'}`;
 }
 
-function operating(vat: VatBreakdown): CostResult {
-  const costBase = round2(vat.net + vat.nonDeductible);
+function operating(p: PodstawaKosztu): CostResult {
+  const costBase = suma(p.glowna);
   const kup = iloczyn(costBase, OPERATING_COST_FACTOR);
   const nkup = round2(costBase - kup);
   return {
@@ -79,20 +91,19 @@ function operating(vat: VatBreakdown): CostResult {
   };
 }
 
-function leasing(input: CalculatorInput, vat: VatBreakdown): CostResult {
-  const interestNet = Math.min(round2(input.interestNet), vat.net);
-  const capitalNet = round2(vat.net - interestNet);
-  // VAT nieodliczony dzielimy proporcjonalnie do części kapitałowej i odsetkowej raty.
-  const capitalVat = vat.net > 0 ? ulamek([vat.nonDeductible, capitalNet], [vat.net]) : 0;
-  const interestVat = round2(vat.nonDeductible - capitalVat);
-
-  const capitalBase = round2(capitalNet + capitalVat);
-  const interestBase = round2(interestNet + interestVat);
+function leasing(input: CalculatorInput, p: PodstawaKosztu): CostResult {
+  const capitalBase = suma(p.glowna);
+  const interestBase = suma(p.odsetki);
   const costBase = round2(capitalBase + interestBase);
 
   const limit = resolveLimit(input, input.vehicleValue);
   const capitalKup = wProporcji(capitalBase, input, limit);
   const capitalNkup = round2(capitalBase - capitalKup);
+  // Część odsetkowa nie spłaca wartości samochodu, więc limitu wartości nie
+  // podlega — ale jest kosztem używania auta, a przy użytku mieszanym te
+  // wchodzą do kosztów w 75%. Wyłączenie z reguły 75% dotyczy tylko kapitału.
+  const interestKup = iloczyn(interestBase, OPERATING_COST_FACTOR);
+  const interestNkup = round2(interestBase - interestKup);
 
   const lines: CostLine[] = [
     { label: 'Podstawa: netto + VAT niepodlegający odliczeniu', amount: costBase, kind: 'info' },
@@ -115,10 +126,15 @@ function leasing(input: CalculatorInput, vat: VatBreakdown): CostResult {
   }
   if (interestBase > 0) {
     lines.push({
-      label: 'Część odsetkowa w kosztach',
-      amount: interestBase,
+      label: 'Część odsetkowa w kosztach — 75%',
+      amount: interestKup,
       kind: 'kup',
-      note: 'nie podlega limitowi wartości pojazdu ani regule 75%',
+      note: 'bez limitu wartości pojazdu, ale z regułą 75% dla kosztów używania',
+    });
+    lines.push({
+      label: 'Część odsetkowa wyłączona z kosztów — 25%',
+      amount: interestNkup,
+      kind: 'nkup',
     });
   }
 
@@ -128,7 +144,7 @@ function leasing(input: CalculatorInput, vat: VatBreakdown): CostResult {
       'Nie podano wartości samochodu z umowy — limit nie został zastosowany, cała część kapitałowa trafiła do kosztów.',
     );
   }
-  if (interestNet === 0 && input.interestNet === 0) {
+  if (input.interestNet <= 0) {
     warnings.push(
       'Nie wskazano części odsetkowej raty — całą ratę potraktowano jako kapitałową, czyli objętą limitem.',
     );
@@ -136,21 +152,22 @@ function leasing(input: CalculatorInput, vat: VatBreakdown): CostResult {
 
   return {
     costBase,
-    kup: round2(capitalKup + interestBase),
-    nkup: capitalNkup,
+    kup: round2(capitalKup + interestKup),
+    nkup: round2(capitalNkup + interestNkup),
     lines,
     limit,
     depreciation: null,
     legalBasis: [
       'art. 23 ust. 1 pkt 47a ustawy o PIT / art. 16 ust. 1 pkt 49a ustawy o CIT — limit dla opłat leasingowych i najmu',
+      'art. 23 ust. 1 pkt 46a ustawy o PIT / art. 16 ust. 1 pkt 51 ustawy o CIT — część odsetkowa jako koszt używania: 75% przy użytku mieszanym; część kapitałowa jest z tej reguły wyłączona (objaśnienia podatkowe MF z 9 lipca 2019 r.)',
       'art. 23 ust. 5c ustawy o PIT / art. 16 ust. 5c ustawy o CIT — wartość samochodu obejmuje VAT niepodlegający odliczeniu',
     ],
     warnings,
   };
 }
 
-function purchase(input: CalculatorInput, vat: VatBreakdown): CostResult {
-  const initialValue = round2(vat.net + vat.nonDeductible);
+function purchase(input: CalculatorInput, p: PodstawaKosztu): CostResult {
+  const initialValue = suma(p.glowna);
   const limit = resolveLimit(input, initialValue);
   const annual = ulamek([initialValue, input.depreciationRatePercent], [100]);
   const annualKup = wProporcji(annual, input, limit);
@@ -208,8 +225,8 @@ function purchase(input: CalculatorInput, vat: VatBreakdown): CostResult {
   };
 }
 
-function insuranceAC(input: CalculatorInput, vat: VatBreakdown): CostResult {
-  const costBase = round2(vat.net + vat.nonDeductible);
+function insuranceAC(input: CalculatorInput, p: PodstawaKosztu): CostResult {
+  const costBase = suma(p.glowna);
   const ratioOverridden = input.ratioOverridePercent !== null;
   const limit: LimitInfo = {
     value: input.acLimit,
@@ -254,8 +271,8 @@ function insuranceAC(input: CalculatorInput, vat: VatBreakdown): CostResult {
   };
 }
 
-function insuranceOC(vat: VatBreakdown): CostResult {
-  const costBase = round2(vat.net + vat.nonDeductible);
+function insuranceOC(p: PodstawaKosztu): CostResult {
+  const costBase = suma(p.glowna);
   return {
     costBase,
     kup: costBase,
@@ -276,17 +293,17 @@ function insuranceOC(vat: VatBreakdown): CostResult {
   };
 }
 
-export function calculateCost(input: CalculatorInput, vat: VatBreakdown): CostResult {
+export function calculateCost(input: CalculatorInput, p: PodstawaKosztu): CostResult {
   switch (input.category) {
     case 'operating':
-      return operating(vat);
+      return operating(p);
     case 'leasing':
-      return leasing(input, vat);
+      return leasing(input, p);
     case 'purchase':
-      return purchase(input, vat);
+      return purchase(input, p);
     case 'insuranceAC':
-      return insuranceAC(input, vat);
+      return insuranceAC(input, p);
     case 'insuranceOC':
-      return insuranceOC(vat);
+      return insuranceOC(p);
   }
 }

@@ -39,14 +39,16 @@ z `src/domain/zip.ts` (ten sam co w Kalkulatorze walut), bez dodatkowej bibliote
 | Wydatek | Koszt podatkowy |
 | --- | --- |
 | Eksploatacja — paliwo, serwis, opony, myjnia, parking | 75% podstawy |
-| Rata leasingu, najmu, dzierżawy | część kapitałowa objęta limitem, odsetkowa w całości |
+| Rata leasingu, najmu, dzierżawy | część kapitałowa objęta limitem, odsetkowa w 75% |
 | Zakup samochodu | odpisy amortyzacyjne objęte limitem |
 | Ubezpieczenie AC, GAP | proporcjonalnie do limitu 150 000 zł |
 | Ubezpieczenie OC, NNW, assistance | w całości |
 
 Przy racie leasingu wpisuje się osobno kapitał i odsetki netto — tak, jak stoją w dwóch
-pozycjach faktury. Limit obejmuje tylko kapitał; odsetki wraz z nieodliczonym VAT od nich
-są kosztem w całości.
+pozycjach faktury. Limit wartości pojazdu obejmuje tylko kapitał. Odsetki wraz z nieodliczonym
+VAT od nich limitowi nie podlegają, ale są kosztem używania samochodu, więc przy użytku
+mieszanym wchodzą do kosztów w 75% — z reguły 75% wyłączona jest tylko część kapitałowa
+(objaśnienia podatkowe MF z 9 lipca 2019 r.).
 
 Podstawą kosztu jest zawsze kwota netto powiększona o VAT niepodlegający odliczeniu
 (art. 23 ust. 5a ustawy o PIT, art. 16 ust. 5a ustawy o CIT).
@@ -75,16 +77,18 @@ i leasingu. Pole pozostaje edytowalne.
 
 ## Alokacja kosztu w organizacji
 
-W trybie fundacji dostępne jest pole „Udział działalności gospodarczej w koszcie”. Dzieli ono
-wyliczony koszt podatkowy między działalność gospodarczą i statutową. Nie wynika ono wprost
-z ustawy — odzwierciedla politykę rachunkowości organizacji i domyślnie wynosi 100%.
+W trybie fundacji dostępne jest pole „Udział działalności gospodarczej w koszcie”. Nie wynika
+ono wprost z ustawy — odzwierciedla politykę rachunkowości organizacji i domyślnie wynosi 100%.
 
-Osobno kalkulator podaje **podział rachunkowy** całego kosztu (np. na konta 500 i 501).
-Netto dzieli się tym samym udziałem, a VAT idzie za swoim źródłem: część statutowa nie ma
-prawa do odliczenia, więc dostaje cały podatek przypadający na nią według prewspółczynnika;
-gospodarcza — tylko tę część swojego podatku, której nie odliczono. Odsetki leasingowe netto
-zostają kosztem finansowym, poza podziałem. Przy zakupie samochodu podziału nie ma —
-kosztem są dopiero odpisy amortyzacyjne.
+Kolejność ma znaczenie: **najpierw podział, potem limity**. Każda część faktury (przy leasingu
+osobno kapitał i odsetki) dzieli się na statutową i gospodarczą. Netto — według udziału
+w koszcie; VAT idzie za swoim źródłem: część statutowa nie ma prawa do odliczenia, więc
+dostaje cały podatek przypadający na nią według prewspółczynnika, a gospodarcza — tylko tę
+część swojego podatku, której nie odliczono. Część statutowa nie jest kosztem podatkowym,
+więc limit wartości pojazdu i reguła 75% jej nie dotyczą; stosuje się je wyłącznie do części
+gospodarczej. Kalkulator podaje ten podział rachunkowy (np. na konta 500 i 501), z odsetkami
+wykazanymi w każdej części osobno. Przy zakupie samochodu podziału nie ma — kosztem są
+dopiero odpisy amortyzacyjne.
 
 ## Zaokrąglenie do groszy
 
