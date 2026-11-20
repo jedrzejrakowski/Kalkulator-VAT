@@ -64,7 +64,7 @@ describe('rata BNP Paribas Leasing 11854/10/2026/RL/LS w fundacji', () => {
   it('rozbicie do dekretu: kapitał i odsetki osobno, jak na kontach 402 i 751', () => {
     expect(r.rozbicie).toEqual({
       // 402: statutowa 1 339,28 + w kosztach 709,49; ponad limit 504,56 (NKUP)
-      kapital: { statutowa: 1339.28, kup: 709.49, nkup: 504.56, razem: 2553.33 },
+      glowna: { statutowa: 1339.28, kup: 709.49, nkup: 504.56, razem: 2553.33 },
       // 751: statutowa 23,62 + w kosztach 16,04; 25% wyłączone 5,35 (NKUP)
       odsetki: { statutowa: 23.62, kup: 16.04, nkup: 5.35, razem: 45.01 },
       razem: { statutowa: 1362.9, kup: 725.53, nkup: 509.91, razem: 2598.34 },
@@ -72,7 +72,7 @@ describe('rata BNP Paribas Leasing 11854/10/2026/RL/LS w fundacji', () => {
       brutto: 2725.77,
     });
     // przeksięgowanie przez 490: 500 = 1 339,28, 501 = 709,49 + 504,56 = 1 214,05
-    expect(round2(r.rozbicie!.kapital.kup + r.rozbicie!.kapital.nkup)).toBe(1214.05);
+    expect(round2(r.rozbicie!.glowna.kup + r.rozbicie!.glowna.nkup)).toBe(1214.05);
   });
 });
 

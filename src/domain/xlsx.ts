@@ -4,8 +4,9 @@
  * Kwoty i procenty zapisujemy jako liczby z formatem, a nie jako tekst, żeby
  * dało się je przenieść do innych wyliczeń. Układ odpowiada panelowi wyniku:
  * dane wejściowe, podatek naliczony, koszt podatkowy, limit, amortyzacja,
- * księgowanie i podstawa prawna. Archiwum składa `zip.ts` — bez biblioteki.
+ * dekret, księgowanie i podstawa prawna. Archiwum składa `zip.ts` — bez biblioteki.
  */
+import { DOMYSLNY_PLAN_KONT, dekret, sumyDekretu, type PlanKont } from './dekret';
 import { CATEGORY_LABELS, ENTITY_LABELS } from './labels';
 import { formatAmount, round2 } from './money';
 import { archiwum } from './zip';
@@ -34,7 +35,12 @@ function wartosc(adres: string, w: Wartosc): string {
 }
 
 /** Wiersze arkusza w kolejności panelu wyniku. */
-export function wierszeRozliczenia(input: CalculatorInput, result: CalculationResult, kiedy: Date): Wiersz[] {
+export function wierszeRozliczenia(
+  input: CalculatorInput,
+  result: CalculationResult,
+  kiedy: Date,
+  plan: PlanKont = DOMYSLNY_PLAN_KONT,
+): Wiersz[] {
   const { vat, limit, depreciation } = result;
   const poz = (t: string, w: Wartosc, uwaga?: string): Wiersz => ({ rodzaj: 'pozycja', tekst: t, wartosc: w, uwaga });
   const kwota = (k: number) => ({ kwota: k });
@@ -130,24 +136,18 @@ export function wierszeRozliczenia(input: CalculatorInput, result: CalculationRe
     }
   }
 
-  const r = result.rozbicie;
-  if (r) {
-    w.push({ rodzaj: 'sekcja', tekst: 'Rozbicie do dekretu' });
-    for (const [nazwa, c] of [
-      ['Kapitał', r.kapital],
-      ['Odsetki', r.odsetki],
-    ] as const) {
-      if (a) w.push(poz(`${nazwa} — działalność statutowa`, kwota(c.statutowa)));
-      w.push(
-        poz(`${nazwa} — w kosztach podatkowych`, kwota(c.kup)),
-        poz(`${nazwa} — poza kosztami`, kwota(c.nkup)),
-        poz(`${nazwa} razem`, kwota(c.razem), 'netto + VAT bez prawa do odliczenia'),
-      );
+  const pozycje = dekret(input, result, plan);
+  if (pozycje) {
+    w.push({ rodzaj: 'sekcja', tekst: 'Dekret' });
+    for (const x of pozycje) {
+      const konta = [x.wn ? `Wn ${x.wn}` : '', x.ma ? `Ma ${x.ma}` : ''].filter(Boolean).join(' / ');
+      w.push(poz(konta, kwota(x.kwota), x.opis));
     }
-    w.push(
-      poz('VAT do odliczenia', kwota(r.vatOdliczony)),
-      poz('Brutto z faktury', kwota(r.brutto)),
-    );
+    const sumy = sumyDekretu(pozycje);
+    w.push({
+      rodzaj: 'przypis',
+      tekst: `Kontrola: Wn ${formatAmount(sumy.wn)} = Ma ${formatAmount(sumy.ma)}${sumy.wn === sumy.ma ? ' ✓' : ' — strony się nie równoważą'}`,
+    });
   }
 
   w.push(
@@ -252,7 +252,12 @@ const RELACJE_SKOROSZYTU =
 
 export const TYP_XLSX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
-export function plikXlsx(input: CalculatorInput, result: CalculationResult, kiedy: Date = new Date()): Uint8Array {
+export function plikXlsx(
+  input: CalculatorInput,
+  result: CalculationResult,
+  kiedy: Date = new Date(),
+  plan: PlanKont = DOMYSLNY_PLAN_KONT,
+): Uint8Array {
   const plik = (nazwa: string, tresc: string) => ({ nazwa, dane: KODOWANIE.encode(tresc) });
   return archiwum(
     [
@@ -261,7 +266,7 @@ export function plikXlsx(input: CalculatorInput, result: CalculationResult, kied
       plik('xl/workbook.xml', SKOROSZYT),
       plik('xl/_rels/workbook.xml.rels', RELACJE_SKOROSZYTU),
       plik('xl/styles.xml', STYLE),
-      plik('xl/worksheets/sheet1.xml', arkuszXml(wierszeRozliczenia(input, result, kiedy))),
+      plik('xl/worksheets/sheet1.xml', arkuszXml(wierszeRozliczenia(input, result, kiedy, plan))),
     ],
     kiedy,
   );
