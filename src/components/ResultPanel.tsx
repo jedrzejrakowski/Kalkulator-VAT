@@ -217,6 +217,59 @@ export function ResultPanel({ input, result }: Props) {
                 </p>
               </>
             ) : null}
+
+            {result.rozbicie ? (
+              <>
+                <h3 className="subhead">Rozbicie do dekretu</h3>
+                <table className="figures dekret">
+                  <thead>
+                    <tr>
+                      <th scope="col">
+                        <span className="sr-only">Część</span>
+                      </th>
+                      <th scope="col">Kapitał</th>
+                      <th scope="col">Odsetki</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {result.allocation ? (
+                      <tr className="row-statutory">
+                        <th scope="row">Działalność statutowa</th>
+                        <td>{formatPln(result.rozbicie.kapital.statutowa)}</td>
+                        <td>{formatPln(result.rozbicie.odsetki.statutowa)}</td>
+                      </tr>
+                    ) : null}
+                    <tr className="row-kup">
+                      <th scope="row">W kosztach podatkowych</th>
+                      <td>{formatPln(result.rozbicie.kapital.kup)}</td>
+                      <td>{formatPln(result.rozbicie.odsetki.kup)}</td>
+                    </tr>
+                    <tr className="row-nkup">
+                      <th scope="row">Poza kosztami</th>
+                      <td>{formatPln(result.rozbicie.kapital.nkup)}</td>
+                      <td>{formatPln(result.rozbicie.odsetki.nkup)}</td>
+                    </tr>
+                    <tr className="row-total">
+                      <th scope="row">Razem</th>
+                      <td>{formatPln(result.rozbicie.kapital.razem)}</td>
+                      <td>{formatPln(result.rozbicie.odsetki.razem)}</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">VAT do odliczenia</th>
+                      <td colSpan={2}>{formatPln(result.rozbicie.vatOdliczony)}</td>
+                    </tr>
+                    <tr className="row-total">
+                      <th scope="row">Brutto z faktury</th>
+                      <td colSpan={2}>{formatPln(result.rozbicie.brutto)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p className="field-hint">
+                  Kapitał i odsetki księguje się zwykle na osobnych kontach (np. 402 i 751), dlatego
+                  rozpisane są osobno. Każda kolumna zawiera netto i VAT bez prawa do odliczenia.
+                </p>
+              </>
+            ) : null}
           </>
         ) : (
           <p className="empty">Wpisz kwotę z faktury, aby zobaczyć rozliczenie.</p>

@@ -333,3 +333,20 @@ describe('zaokrąglenie połówki grosza', () => {
     expect(r.nkup).toBe(28.02);
   });
 });
+
+describe('rozbicie do dekretu', () => {
+  it('jest tylko przy racie leasingowej', () => {
+    expect(calculate(input({ category: 'operating', amount: 500 })).rozbicie).toBeNull();
+    expect(calculate(input({ category: 'insuranceOC', amount: 500 })).rozbicie).toBeNull();
+  });
+
+  it('w firmie nie ma części statutowej, a całość spina się z kwotą brutto', () => {
+    const r = calculate(
+      input({ category: 'leasing', amountMode: 'net', amount: 2212.92, interestNet: 34.78, vehicleValue: 180000 }),
+    ).rozbicie!;
+    expect(r.kapital.statutowa).toBe(0);
+    expect(r.odsetki.statutowa).toBe(0);
+    expect(Math.round((r.razem.razem + r.vatOdliczony) * 100) / 100).toBe(r.brutto);
+    expect(Math.round((r.kapital.razem + r.odsetki.razem) * 100) / 100).toBe(r.razem.razem);
+  });
+});

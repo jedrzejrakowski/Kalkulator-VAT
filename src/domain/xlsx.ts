@@ -130,6 +130,26 @@ export function wierszeRozliczenia(input: CalculatorInput, result: CalculationRe
     }
   }
 
+  const r = result.rozbicie;
+  if (r) {
+    w.push({ rodzaj: 'sekcja', tekst: 'Rozbicie do dekretu' });
+    for (const [nazwa, c] of [
+      ['Kapitał', r.kapital],
+      ['Odsetki', r.odsetki],
+    ] as const) {
+      if (a) w.push(poz(`${nazwa} — działalność statutowa`, kwota(c.statutowa)));
+      w.push(
+        poz(`${nazwa} — w kosztach podatkowych`, kwota(c.kup)),
+        poz(`${nazwa} — poza kosztami`, kwota(c.nkup)),
+        poz(`${nazwa} razem`, kwota(c.razem), 'netto + VAT bez prawa do odliczenia'),
+      );
+    }
+    w.push(
+      poz('VAT do odliczenia', kwota(r.vatOdliczony)),
+      poz('Brutto z faktury', kwota(r.brutto)),
+    );
+  }
+
   w.push(
     { rodzaj: 'sekcja', tekst: 'Jak to zaksięgować' },
     ...result.warnings.map((t): Wiersz => ({ rodzaj: 'akapit', tekst: `Uwaga: ${t}` })),

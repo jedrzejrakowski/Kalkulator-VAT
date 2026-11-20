@@ -125,6 +125,30 @@ export interface Allocation {
   business: AllocationPart;
 }
 
+/** Jedna część raty leasingowej rozpisana tak, jak trafia na konta. */
+export interface RozbicieCzesci {
+  /** Część statutowa organizacji — poza rachunkiem podatkowym. */
+  statutowa: number;
+  /** Część gospodarcza zaliczona do kosztów podatkowych. */
+  kup: number;
+  /** Część gospodarcza wyłączona z kosztów podatkowych. */
+  nkup: number;
+  razem: number;
+}
+
+/**
+ * Rata leasingowa rozpisana do dekretu: kapitał i odsetki osobno, bo zwykle
+ * trafiają na różne konta (np. 402 i 751). Razem z VAT-em do odliczenia
+ * sumuje się do kwoty brutto z faktury.
+ */
+export interface Rozbicie {
+  kapital: RozbicieCzesci;
+  odsetki: RozbicieCzesci;
+  razem: RozbicieCzesci;
+  vatOdliczony: number;
+  brutto: number;
+}
+
 export interface CalculationResult {
   vat: VatBreakdown;
   /** Podstawa kosztu: netto powiększone o VAT niepodlegający odliczeniu. */
@@ -140,4 +164,6 @@ export interface CalculationResult {
   limit: LimitInfo | null;
   depreciation: DepreciationInfo | null;
   allocation: Allocation | null;
+  /** Tylko przy racie leasingowej. */
+  rozbicie: Rozbicie | null;
 }

@@ -9,8 +9,11 @@ import type {
   CalculationResult,
   CalculatorInput,
   CostLine,
+  Rozbicie,
+  RozbicieCzesci,
   VatBreakdown,
 } from './types';
+import type { CostResult } from './cost';
 
 function bookingNotes(input: CalculatorInput, result: Omit<CalculationResult, 'booking'>): string[] {
   const notes: string[] = [];
@@ -35,11 +38,26 @@ function bookingNotes(input: CalculatorInput, result: Omit<CalculationResult, 'b
         `Na konto kosztów rodzajowych: ${formatPln(result.costBase)}, z czego ${formatPln(result.kup)} stanowi koszt podatkowy, a ${formatPln(result.nkup)} wyksięguj jako koszt niestanowiący kosztu uzyskania przychodu.`,
       );
       break;
-    case 'leasing':
+    case 'leasing': {
       notes.push(
         `Ratę zaksięguj w kwocie ${formatPln(result.costBase)}; poza kosztami podatkowymi pozostaje ${formatPln(result.nkup)} — część kapitałowa ponad limit i 25% części odsetkowej.`,
       );
+      const r = result.rozbicie;
+      if (r) {
+        const opis = (c: RozbicieCzesci) =>
+          [
+            c.statutowa > 0 ? `statutowa ${formatPln(c.statutowa)}` : null,
+            `w kosztach ${formatPln(c.kup)}`,
+            c.nkup > 0 ? `poza kosztami ${formatPln(c.nkup)}` : null,
+          ]
+            .filter(Boolean)
+            .join(', ');
+        notes.push(
+          `Kapitał ${formatPln(r.kapital.razem)} (${opis(r.kapital)}) i odsetki ${formatPln(r.odsetki.razem)} (${opis(r.odsetki)}) księguje się zwykle na osobnych kontach — odsetki jako koszt finansowy. Część poza kosztami wyodrębnij analitycznie przy każdym z nich.`,
+        );
+      }
       break;
+    }
     case 'purchase':
       notes.push(
         `Wprowadź samochód do ewidencji środków trwałych w wartości początkowej ${formatPln(result.costBase)}.`,
@@ -151,6 +169,32 @@ function rozdziel(
   };
 }
 
+/** Rata leasingowa rozpisana do dekretu — kapitał i odsetki osobno. */
+function rozbicie(vat: VatBreakdown, cost: CostResult, allocation: Allocation | null): Rozbicie | null {
+  if (!cost.czesci) return null;
+  const statOdsetki = allocation ? allocation.statutory.odsetki : 0;
+  const statKapital = allocation ? round2(allocation.statutory.total - statOdsetki) : 0;
+  const wiersz = (statutowa: number, kup: number, nkup: number): RozbicieCzesci => ({
+    statutowa,
+    kup,
+    nkup,
+    razem: round2(statutowa + kup + nkup),
+  });
+  const kapital = wiersz(statKapital, cost.czesci.kapital.kup, cost.czesci.kapital.nkup);
+  const odsetki = wiersz(statOdsetki, cost.czesci.odsetki.kup, cost.czesci.odsetki.nkup);
+  return {
+    kapital,
+    odsetki,
+    razem: wiersz(
+      round2(kapital.statutowa + odsetki.statutowa),
+      round2(kapital.kup + odsetki.kup),
+      round2(kapital.nkup + odsetki.nkup),
+    ),
+    vatOdliczony: vat.deductible,
+    brutto: vat.gross,
+  };
+}
+
 export function calculate(input: CalculatorInput): CalculationResult {
   const vat = calculateVat(input);
   const { podstawa, allocation } = rozdziel(input, vat);
@@ -203,6 +247,7 @@ export function calculate(input: CalculatorInput): CalculationResult {
     limit: cost.limit,
     depreciation: cost.depreciation,
     allocation,
+    rozbicie: rozbicie(vat, cost, allocation),
   };
 
   return { ...partial, booking: bookingNotes(input, partial) };
