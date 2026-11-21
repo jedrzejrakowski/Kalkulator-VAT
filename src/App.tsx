@@ -5,6 +5,7 @@ import { Logo } from './components/Logo';
 import { ResultPanel } from './components/ResultPanel';
 import { TitleBar } from './components/TitleBar';
 import { calculate } from './domain/calculate';
+import { uzupelnijPlan, type PlanKont } from './domain/dekret';
 import { DEFAULT_INPUT, VAT_RATES } from './domain/defaults';
 import {
   CATEGORY_HINTS,
@@ -55,7 +56,28 @@ function PrintDate() {
   );
 }
 
+const KLUCZ_PLANU = 'kalkulator-vat:plan-kont';
+
+/** Numery kont z poprzedniej wizyty; bez dostępu do pamięci przeglądarki — domyślne. */
+function wczytajPlan(): PlanKont {
+  try {
+    const zapis = window.localStorage.getItem(KLUCZ_PLANU);
+    return uzupelnijPlan(zapis ? JSON.parse(zapis) : null);
+  } catch {
+    return uzupelnijPlan(null);
+  }
+}
+
 export default function App() {
+  const [plan, setPlan] = useState<PlanKont>(wczytajPlan);
+  const zmienPlan = (nowy: PlanKont) => {
+    setPlan(nowy);
+    try {
+      window.localStorage.setItem(KLUCZ_PLANU, JSON.stringify(nowy));
+    } catch {
+      // Tryb prywatny albo zablokowana pamięć — numery działają do zamknięcia karty.
+    }
+  };
   const [input, setInput] = useState<CalculatorInput>(DEFAULT_INPUT);
   const result = useMemo(() => calculate(input), [input]);
 
@@ -326,7 +348,7 @@ export default function App() {
           ) : null}
         </div>
 
-        <ResultPanel input={input} result={result} />
+        <ResultPanel input={input} result={result} plan={plan} onPlanChange={zmienPlan} />
       </div>
 
       </div>

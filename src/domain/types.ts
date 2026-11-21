@@ -125,6 +125,31 @@ export interface Allocation {
   business: AllocationPart;
 }
 
+/** Jedna część wydatku rozpisana tak, jak trafia na konta. */
+export interface RozbicieCzesci {
+  /** Część statutowa organizacji — poza rachunkiem podatkowym. */
+  statutowa: number;
+  /** Część gospodarcza zaliczona do kosztów podatkowych. */
+  kup: number;
+  /** Część gospodarcza wyłączona z kosztów podatkowych. */
+  nkup: number;
+  razem: number;
+}
+
+/**
+ * Wydatek rozpisany do dekretu. Przy leasingu część główna to kapitał, a
+ * odsetki idą osobno, bo zwykle trafiają na inne konto (np. 402 i 751); przy
+ * pozostałych wydatkach odsetki są zerowe. Razem z VAT-em do odliczenia
+ * sumuje się do kwoty brutto z faktury.
+ */
+export interface Rozbicie {
+  glowna: RozbicieCzesci;
+  odsetki: RozbicieCzesci;
+  razem: RozbicieCzesci;
+  vatOdliczony: number;
+  brutto: number;
+}
+
 export interface CalculationResult {
   vat: VatBreakdown;
   /** Podstawa kosztu: netto powiększone o VAT niepodlegający odliczeniu. */
@@ -140,4 +165,6 @@ export interface CalculationResult {
   limit: LimitInfo | null;
   depreciation: DepreciationInfo | null;
   allocation: Allocation | null;
+  /** Brak przy zakupie samochodu — tam kosztem są dopiero odpisy amortyzacyjne. */
+  rozbicie: Rozbicie | null;
 }

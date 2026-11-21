@@ -1,3 +1,4 @@
+import { DOMYSLNY_PLAN_KONT, dekret, sumyDekretu, type KategoriaKosztu, type PlanKont } from '../domain/dekret';
 import { formatPln, formatRate } from '../domain/money';
 import { TYP_XLSX, plikXlsx } from '../domain/xlsx';
 import type { CalculationResult, CalculatorInput } from '../domain/types';
@@ -5,6 +6,17 @@ import type { CalculationResult, CalculatorInput } from '../domain/types';
 interface Props {
   input: CalculatorInput;
   result: CalculationResult;
+  plan: PlanKont;
+  onPlanChange: (plan: PlanKont) => void;
+}
+
+function PoleKonta({ etykieta, wartosc, zmien }: { etykieta: string; wartosc: string; zmien: (v: string) => void }) {
+  return (
+    <label className="field">
+      <span className="field-label">{etykieta}</span>
+      <input type="text" value={wartosc} spellCheck={false} autoComplete="off" onChange={(e) => zmien(e.target.value.trim())} />
+    </label>
+  );
 }
 
 const KIND_CLASS: Record<string, string> = {
@@ -25,9 +37,9 @@ function exportPdf() {
   window.print();
 }
 
-function exportXlsx(input: CalculatorInput, result: CalculationResult) {
+function exportXlsx(input: CalculatorInput, result: CalculationResult, plan: PlanKont) {
   const kiedy = new Date();
-  const url = URL.createObjectURL(new Blob([plikXlsx(input, result, kiedy).slice()], { type: TYP_XLSX }));
+  const url = URL.createObjectURL(new Blob([plikXlsx(input, result, kiedy, plan).slice()], { type: TYP_XLSX }));
   const a = document.createElement('a');
   a.href = url;
   a.download = `rozliczenie-samochod-${kiedy.toLocaleDateString('sv-SE')}.xlsx`;
@@ -39,9 +51,12 @@ function exportXlsx(input: CalculatorInput, result: CalculationResult) {
   window.setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
-export function ResultPanel({ input, result }: Props) {
+export function ResultPanel({ input, result, plan, onPlanChange }: Props) {
   const { vat, depreciation, limit } = result;
   const hasAmount = vat.gross > 0;
+  const pozycje = dekret(input, result, plan);
+  const sumy = pozycje ? sumyDekretu(pozycje) : null;
+  const kategoria = input.category === 'purchase' ? null : (input.category as KategoriaKosztu);
 
   return (
     <div className="results">
@@ -231,6 +246,90 @@ export function ResultPanel({ input, result }: Props) {
               {warning}
             </p>
           ))}
+          {pozycje ? (
+            <>
+              <h3 className="subhead">Dekret</h3>
+              <table className="figures dekret">
+                <thead>
+                  <tr>
+                    <th scope="col">Konto</th>
+                    <th scope="col">Kwota</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pozycje.map((x) => (
+                    <tr key={`${x.wn ?? ''}|${x.ma ?? ''}|${x.opis}`} className={x.przeksiegowanie ? 'dekret-490' : ''}>
+                      <th scope="row">
+                        <span className="dekret-konta">
+                          {x.wn ? <span>Wn {x.wn}</span> : null}
+                          {x.ma ? <span>Ma {x.ma}</span> : null}
+                        </span>
+                        <span className="row-note">{x.opis}</span>
+                      </th>
+                      <td>{formatPln(x.kwota)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p className="field-hint">
+                Kontrola: Wn {formatPln(sumy!.wn)} = Ma {formatPln(sumy!.ma)}
+                {sumy!.wn === sumy!.ma ? ' ✓' : ' — strony się nie równoważą'}
+                {result.allocation
+                  ? `. Przez ${plan.rozliczenie} przechodzą tylko koszty rodzajowe — odsetki zostają w kosztach finansowych.`
+                  : '.'}
+              </p>
+              <details className="legal-box plan-kont no-print">
+                <summary>Numery kont</summary>
+                <div className="plan-kont__pola">
+                  <PoleKonta etykieta="Dostawca (Ma)" wartosc={plan.kontrahent} zmien={(kontrahent) => onPlanChange({ ...plan, kontrahent })} />
+                  <PoleKonta
+                    etykieta={input.category === 'leasing' ? 'Koszt — kapitał' : 'Koszt rodzajowy'}
+                    wartosc={plan.koszt[kategoria!]}
+                    zmien={(k) => onPlanChange({ ...plan, koszt: { ...plan.koszt, [kategoria!]: k } })}
+                  />
+                  {input.category === 'leasing' ? (
+                    <>
+                      <PoleKonta etykieta="Odsetki" wartosc={plan.odsetki} zmien={(odsetki) => onPlanChange({ ...plan, odsetki })} />
+                      <PoleKonta
+                        etykieta="Odsetki NKUP"
+                        wartosc={plan.odsetkiNkup}
+                        zmien={(odsetkiNkup) => onPlanChange({ ...plan, odsetkiNkup })}
+                      />
+                    </>
+                  ) : null}
+                  <PoleKonta etykieta="Koszty NKUP" wartosc={plan.nkup} zmien={(nkup) => onPlanChange({ ...plan, nkup })} />
+                  <PoleKonta etykieta="VAT naliczony" wartosc={plan.vat} zmien={(vat) => onPlanChange({ ...plan, vat })} />
+                  {result.allocation ? (
+                    <>
+                      <PoleKonta
+                        etykieta="Rozliczenie kosztów"
+                        wartosc={plan.rozliczenie}
+                        zmien={(rozliczenie) => onPlanChange({ ...plan, rozliczenie })}
+                      />
+                      <PoleKonta
+                        etykieta="Działalność statutowa"
+                        wartosc={plan.statutowe}
+                        zmien={(statutowe) => onPlanChange({ ...plan, statutowe })}
+                      />
+                      <PoleKonta
+                        etykieta="Działalność gospodarcza"
+                        wartosc={plan.gospodarcze}
+                        zmien={(gospodarcze) => onPlanChange({ ...plan, gospodarcze })}
+                      />
+                    </>
+                  ) : null}
+                </div>
+                <p className="field-hint">
+                  Numery zapamiętuje ta przeglądarka. Konto kosztu ustawiasz osobno dla każdego rodzaju
+                  wydatku.
+                </p>
+                <button type="button" className="link-button" onClick={() => onPlanChange(DOMYSLNY_PLAN_KONT)}>
+                  Przywróć domyślne
+                </button>
+              </details>
+            </>
+          ) : null}
+          {pozycje ? <h3 className="subhead">Uwagi</h3> : null}
           <ul className="notes">
             {result.booking.map((note) => (
               <li key={note}>{note}</li>
@@ -256,7 +355,7 @@ export function ResultPanel({ input, result }: Props) {
             <button type="button" className="export-button" onClick={exportPdf}>
               Zapisz jako PDF
             </button>
-            <button type="button" className="export-button" onClick={() => exportXlsx(input, result)}>
+            <button type="button" className="export-button" onClick={() => exportXlsx(input, result, plan)}>
               Pobierz Excel
             </button>
           </div>

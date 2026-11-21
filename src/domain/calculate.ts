@@ -9,8 +9,11 @@ import type {
   CalculationResult,
   CalculatorInput,
   CostLine,
+  Rozbicie,
+  RozbicieCzesci,
   VatBreakdown,
 } from './types';
+import type { CostResult } from './cost';
 
 function bookingNotes(input: CalculatorInput, result: Omit<CalculationResult, 'booking'>): string[] {
   const notes: string[] = [];
@@ -151,6 +154,44 @@ function rozdziel(
   };
 }
 
+/**
+ * Wydatek rozpisany do dekretu: część statutowa, koszt podatkowy i wyłączenie,
+ * przy leasingu osobno dla kapitału i odsetek.
+ */
+function rozbicie(
+  input: CalculatorInput,
+  vat: VatBreakdown,
+  cost: CostResult,
+  allocation: Allocation | null,
+): Rozbicie | null {
+  if (input.category === 'purchase') return null;
+  const czesci = cost.czesci ?? {
+    kapital: { kup: cost.kup, nkup: cost.nkup },
+    odsetki: { kup: 0, nkup: 0 },
+  };
+  const statOdsetki = allocation ? allocation.statutory.odsetki : 0;
+  const statGlowna = allocation ? round2(allocation.statutory.total - statOdsetki) : 0;
+  const wiersz = (statutowa: number, kup: number, nkup: number): RozbicieCzesci => ({
+    statutowa,
+    kup,
+    nkup,
+    razem: round2(statutowa + kup + nkup),
+  });
+  const glowna = wiersz(statGlowna, czesci.kapital.kup, czesci.kapital.nkup);
+  const odsetki = wiersz(statOdsetki, czesci.odsetki.kup, czesci.odsetki.nkup);
+  return {
+    glowna,
+    odsetki,
+    razem: wiersz(
+      round2(glowna.statutowa + odsetki.statutowa),
+      round2(glowna.kup + odsetki.kup),
+      round2(glowna.nkup + odsetki.nkup),
+    ),
+    vatOdliczony: vat.deductible,
+    brutto: vat.gross,
+  };
+}
+
 export function calculate(input: CalculatorInput): CalculationResult {
   const vat = calculateVat(input);
   const { podstawa, allocation } = rozdziel(input, vat);
@@ -203,6 +244,7 @@ export function calculate(input: CalculatorInput): CalculationResult {
     limit: cost.limit,
     depreciation: cost.depreciation,
     allocation,
+    rozbicie: rozbicie(input, vat, cost, allocation),
   };
 
   return { ...partial, booking: bookingNotes(input, partial) };

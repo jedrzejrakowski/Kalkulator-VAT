@@ -33,6 +33,11 @@ export interface CostResult {
   depreciation: DepreciationInfo | null;
   legalBasis: string[];
   warnings: string[];
+  /** Przy leasingu: koszt i wyłączenie osobno dla kapitału i odsetek. */
+  czesci?: {
+    kapital: { kup: number; nkup: number };
+    odsetki: { kup: number; nkup: number };
+  };
 }
 
 /**
@@ -154,6 +159,10 @@ function leasing(input: CalculatorInput, p: PodstawaKosztu): CostResult {
     costBase,
     kup: round2(capitalKup + interestKup),
     nkup: round2(capitalNkup + interestNkup),
+    czesci: {
+      kapital: { kup: capitalKup, nkup: capitalNkup },
+      odsetki: { kup: interestKup, nkup: interestNkup },
+    },
     lines,
     limit,
     depreciation: null,

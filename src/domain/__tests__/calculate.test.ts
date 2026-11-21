@@ -333,3 +333,22 @@ describe('zaokrąglenie połówki grosza', () => {
     expect(r.nkup).toBe(28.02);
   });
 });
+
+describe('rozbicie do dekretu', () => {
+  it('nie ma go przy zakupie, a poza leasingiem odsetki są zerowe', () => {
+    expect(calculate(input({ category: 'purchase', amount: 50000, vehicleValue: 50000 })).rozbicie).toBeNull();
+    const paliwo = calculate(input({ category: 'operating', amount: 500 })).rozbicie!;
+    expect(paliwo.odsetki).toEqual({ statutowa: 0, kup: 0, nkup: 0, razem: 0 });
+    expect(Math.round((paliwo.razem.razem + paliwo.vatOdliczony) * 100) / 100).toBe(paliwo.brutto);
+  });
+
+  it('w firmie nie ma części statutowej, a całość spina się z kwotą brutto', () => {
+    const r = calculate(
+      input({ category: 'leasing', amountMode: 'net', amount: 2212.92, interestNet: 34.78, vehicleValue: 180000 }),
+    ).rozbicie!;
+    expect(r.glowna.statutowa).toBe(0);
+    expect(r.odsetki.statutowa).toBe(0);
+    expect(Math.round((r.razem.razem + r.vatOdliczony) * 100) / 100).toBe(r.brutto);
+    expect(Math.round((r.glowna.razem + r.odsetki.razem) * 100) / 100).toBe(r.razem.razem);
+  });
+});
