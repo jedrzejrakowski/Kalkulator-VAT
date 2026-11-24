@@ -68,31 +68,6 @@ function wczytajPlan(): PlanKont {
   }
 }
 
-/** Pole wyboru w stylu kart „choice”, z tytułem i opisem. */
-function Opcja({
-  zaznaczona,
-  zmien,
-  tytul,
-  opis,
-}: {
-  zaznaczona: boolean;
-  zmien: (wartosc: boolean) => void;
-  tytul: string;
-  opis: string;
-}) {
-  return (
-    <div className="field">
-      <label className={`choice${zaznaczona ? ' choice-selected' : ''}`}>
-        <input type="checkbox" checked={zaznaczona} onChange={(event) => zmien(event.target.checked)} />
-        <span>
-          <span className="choice-title">{tytul}</span>
-          <span className="choice-desc">{opis}</span>
-        </span>
-      </label>
-    </div>
-  );
-}
-
 export default function App() {
   const [plan, setPlan] = useState<PlanKont>(wczytajPlan);
   const zmienPlan = (nowy: PlanKont) => {
@@ -186,12 +161,32 @@ export default function App() {
                   onChange={(businessSharePercent) => patch({ businessSharePercent })}
                   hint="Podział kosztu między działalność gospodarczą i statutową według polityki organizacji. Nie wynika wprost z ustawy, więc bez zaokrąglania — ułamki są dozwolone."
                 />
-                <Opcja
-                  zaznaczona={input.statutoryLimits}
-                  zmien={(statutoryLimits) => patch({ statutoryLimits })}
-                  tytul="Limity także na część statutową (wariant B)"
-                  opis="Limit wartości pojazdu i reguła 75% liczone od całej faktury. Koszt podatkowy działalności gospodarczej się nie zmienia — tylko część statutowa dzieli się na koszt i wyłączenie. Odznacz dla wariantu A: część statutowa bez limitów."
-                />
+                <div className="field" role="radiogroup" aria-labelledby="wariant-etykieta">
+                  <span className="field-label" id="wariant-etykieta">
+                    Limity a część statutowa
+                  </span>
+                  <div className="choice-group">
+                    <Choice<'A' | 'B'>
+                      name="wariant"
+                      value="A"
+                      selected={input.statutoryLimits ? 'B' : 'A'}
+                      title="Wariant A — tylko część gospodarcza"
+                      description="Limit wartości pojazdu i reguła 75% dotyczą wyłącznie części gospodarczej. Część statutowa w całości na koncie kosztu."
+                      onSelect={() => patch({ statutoryLimits: false })}
+                    />
+                    <Choice<'A' | 'B'>
+                      name="wariant"
+                      value="B"
+                      selected={input.statutoryLimits ? 'B' : 'A'}
+                      title="Wariant B — cała faktura"
+                      description="Limity liczone także od części statutowej: dzieli się ona na koszt i wyłączenie."
+                      onSelect={() => patch({ statutoryLimits: true })}
+                    />
+                  </div>
+                  <span className="field-hint">
+                    W obu wariantach koszt podatkowy działalności gospodarczej jest taki sam.
+                  </span>
+                </div>
               </div>
             ) : null}
           </section>
@@ -227,12 +222,29 @@ export default function App() {
                   Przepisz obie pozycje z faktury leasingowej. Limit wartości pojazdu obejmuje
                   wyłącznie kapitał.
                 </p>
-                <Opcja
-                  zaznaczona={input.interest75}
-                  zmien={(interest75) => patch({ interest75 })}
-                  tytul="Odsetki w kosztach w 75%"
-                  opis="Jak inne koszty używania auta — według objaśnień MF z 9 lipca 2019 r. Odznacz, aby ująć odsetki w kosztach w całości."
-                />
+                <div className="field" role="radiogroup" aria-labelledby="odsetki-etykieta">
+                  <span className="field-label" id="odsetki-etykieta">
+                    Odsetki w kosztach
+                  </span>
+                  <div className="choice-group">
+                    <Choice<'75' | '100'>
+                      name="odsetki"
+                      value="75"
+                      selected={input.interest75 ? '75' : '100'}
+                      title="75%"
+                      description="Jak inne koszty używania auta — według objaśnień MF z 9 lipca 2019 r. Reszta odsetek wyłączona z kosztów."
+                      onSelect={() => patch({ interest75: true })}
+                    />
+                    <Choice<'75' | '100'>
+                      name="odsetki"
+                      value="100"
+                      selected={input.interest75 ? '75' : '100'}
+                      title="W całości"
+                      description="Całe odsetki w kosztach, bez wyłączenia."
+                      onSelect={() => patch({ interest75: false })}
+                    />
+                  </div>
+                </div>
               </>
             ) : (
             <div className="field">
