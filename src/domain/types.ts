@@ -36,6 +36,12 @@ export interface CalculatorInput {
   salesPercent: number;
   /** Udział działalności gospodarczej w koszcie — alokacja własna organizacji. */
   businessSharePercent: number;
+  /**
+   * Wariant B: limit wartości pojazdu i reguła 75% liczone także od części
+   * statutowej. Koszt podatkowy działalności gospodarczej jest w obu wariantach
+   * ten sam — zmienia się tylko podział części statutowej na koszty i wyłączenia.
+   */
+  statutoryLimits: boolean;
 
   category: ExpenseCategory;
   amountMode: AmountMode;
@@ -43,6 +49,8 @@ export interface CalculatorInput {
   vatRatePercent: number;
   /** Część odsetkowa raty leasingowej w kwocie netto. */
   interestNet: number;
+  /** Część odsetkowa w kosztach w 75%, jak inne koszty używania; false — w całości. */
+  interest75: boolean;
 
   powertrain: Powertrain;
   /** Ręczne nadpisanie limitu wartości pojazdu; null = limit ustawowy. */
@@ -127,8 +135,12 @@ export interface Allocation {
 
 /** Jedna część wydatku rozpisana tak, jak trafia na konta. */
 export interface RozbicieCzesci {
-  /** Część statutowa organizacji — poza rachunkiem podatkowym. */
+  /** Część statutowa organizacji, razem. */
   statutowa: number;
+  /** Ta jej część, która idzie na konto kosztu (w wariancie A — cała). */
+  statutowaWKosztach: number;
+  /** Ta jej część, która w wariancie B wypada ponad limity (w wariancie A — zero). */
+  statutowaPozaKosztami: number;
   /** Część gospodarcza zaliczona do kosztów podatkowych. */
   kup: number;
   /** Część gospodarcza wyłączona z kosztów podatkowych. */

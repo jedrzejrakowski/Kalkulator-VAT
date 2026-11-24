@@ -6,12 +6,14 @@ export const DEFAULT_INPUT: CalculatorInput = {
   prePercent: 50,
   salesPercent: 100,
   businessSharePercent: 100,
+  statutoryLimits: true,
 
   category: 'operating',
   amountMode: 'gross',
   amount: 0,
   vatRatePercent: 23,
   interestNet: 0,
+  interest75: true,
 
   powertrain: 'emissionHigh',
   limitOverride: null,

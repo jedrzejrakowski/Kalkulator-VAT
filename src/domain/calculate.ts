@@ -70,7 +70,11 @@ function bookingNotes(input: CalculatorInput, result: Omit<CalculationResult, 'b
 
   if (result.allocation && result.statutory > 0) {
     notes.push(
-      `Alokacja: ${formatPln(result.allocation.business.total)} przypada na działalność gospodarczą (koszt podatkowy ${formatPln(result.kup)}, poza kosztami ${formatPln(result.nkup)}), a ${formatPln(result.statutory)} na działalność statutową — ta część nie wchodzi do wyniku podatkowego i nie podlega limitom.`,
+      `Alokacja: ${formatPln(result.allocation.business.total)} przypada na działalność gospodarczą (koszt podatkowy ${formatPln(result.kup)}, poza kosztami ${formatPln(result.nkup)}), a ${formatPln(result.statutory)} na działalność statutową — ${
+        input.statutoryLimits && result.rozbicie
+          ? `według wariantu B ta część też przechodzi przez limity: w kosztach ${formatPln(result.rozbicie.razem.statutowaWKosztach)}, ponad limity ${formatPln(result.rozbicie.razem.statutowaPozaKosztami)}.`
+          : 'według wariantu A bez limitów.'
+      }`,
     );
   }
 
@@ -138,52 +142,69 @@ function czesc(glowna: Czesc, odsetki: Czesc): AllocationPart {
 function rozdziel(
   input: CalculatorInput,
   vat: VatBreakdown,
-): { podstawa: PodstawaKosztu; allocation: Allocation | null } {
+): { podstawa: PodstawaKosztu; statutowa: PodstawaKosztu | null; allocation: Allocation | null } {
   const { glowna, odsetki } = skladniki(input, vat);
   const bezPodzialu = (s: Skladnik): Czesc => ({ net: s.net, nonDeductible: round2(s.vat - s.deductible) });
 
   if (input.entityType !== 'ngo' || input.category === 'purchase') {
-    return { podstawa: { glowna: bezPodzialu(glowna), odsetki: bezPodzialu(odsetki) }, allocation: null };
+    return {
+      podstawa: { glowna: bezPodzialu(glowna), odsetki: bezPodzialu(odsetki) },
+      statutowa: null,
+      allocation: null,
+    };
   }
 
   const g = podziel(glowna, input);
   const o = podziel(odsetki, input);
   return {
     podstawa: { glowna: g.business, odsetki: o.business },
+    statutowa: { glowna: g.statutory, odsetki: o.statutory },
     allocation: { statutory: czesc(g.statutory, o.statutory), business: czesc(g.business, o.business) },
   };
 }
 
+/** Koszt i wyłączenie osobno dla części głównej i odsetek. */
+const czesciKosztu = (c: CostResult) =>
+  c.czesci ?? { kapital: { kup: c.kup, nkup: c.nkup }, odsetki: { kup: 0, nkup: 0 } };
+
 /**
  * Wydatek rozpisany do dekretu: część statutowa, koszt podatkowy i wyłączenie,
- * przy leasingu osobno dla kapitału i odsetek.
+ * przy leasingu osobno dla kapitału i odsetek. W wariancie B część statutowa
+ * też dzieli się na tę w kosztach i tę ponad limity (`kosztStatutowy`).
  */
 function rozbicie(
   input: CalculatorInput,
   vat: VatBreakdown,
   cost: CostResult,
+  kosztStatutowy: CostResult | null,
   allocation: Allocation | null,
 ): Rozbicie | null {
   if (input.category === 'purchase') return null;
-  const czesci = cost.czesci ?? {
-    kapital: { kup: cost.kup, nkup: cost.nkup },
-    odsetki: { kup: 0, nkup: 0 },
-  };
+  const czesci = czesciKosztu(cost);
+  const stat = kosztStatutowy ? czesciKosztu(kosztStatutowy) : null;
   const statOdsetki = allocation ? allocation.statutory.odsetki : 0;
   const statGlowna = allocation ? round2(allocation.statutory.total - statOdsetki) : 0;
-  const wiersz = (statutowa: number, kup: number, nkup: number): RozbicieCzesci => ({
+  const wiersz = (
+    statutowa: number,
+    statNkup: number,
+    kup: number,
+    nkup: number,
+  ): RozbicieCzesci => ({
     statutowa,
+    statutowaWKosztach: round2(statutowa - statNkup),
+    statutowaPozaKosztami: statNkup,
     kup,
     nkup,
     razem: round2(statutowa + kup + nkup),
   });
-  const glowna = wiersz(statGlowna, czesci.kapital.kup, czesci.kapital.nkup);
-  const odsetki = wiersz(statOdsetki, czesci.odsetki.kup, czesci.odsetki.nkup);
+  const glowna = wiersz(statGlowna, stat?.kapital.nkup ?? 0, czesci.kapital.kup, czesci.kapital.nkup);
+  const odsetki = wiersz(statOdsetki, stat?.odsetki.nkup ?? 0, czesci.odsetki.kup, czesci.odsetki.nkup);
   return {
     glowna,
     odsetki,
     razem: wiersz(
       round2(glowna.statutowa + odsetki.statutowa),
+      round2(glowna.statutowaPozaKosztami + odsetki.statutowaPozaKosztami),
       round2(glowna.kup + odsetki.kup),
       round2(glowna.nkup + odsetki.nkup),
     ),
@@ -194,14 +215,18 @@ function rozbicie(
 
 export function calculate(input: CalculatorInput): CalculationResult {
   const vat = calculateVat(input);
-  const { podstawa, allocation } = rozdziel(input, vat);
+  const { podstawa, statutowa, allocation } = rozdziel(input, vat);
   const cost = calculateCost(input, podstawa);
+  // Wariant B: te same limity także na części statutowej. Koszt podatkowy
+  // działalności gospodarczej się nie zmienia, więc liczymy ją osobno.
+  const kosztStatutowy = statutowa && input.statutoryLimits ? calculateCost(input, statutowa) : null;
+  const rozpisane = rozbicie(input, vat, cost, kosztStatutowy, allocation);
 
   const warnings: string[] = [...cost.warnings];
   const statutory = allocation ? allocation.statutory.total : 0;
 
   // W organizacji linie kosztu opisują już tylko część gospodarczą — statutowa
-  // idzie osobną linią, bez limitów.
+  // idzie osobną linią; w wariancie B z podziałem na koszty i wyłączenia.
   const lines: CostLine[] = cost.lines.map((l, i) =>
     allocation && i === 0 && l.kind === 'info' ? { ...l, label: `${l.label} — część gospodarcza` } : l,
   );
@@ -210,8 +235,19 @@ export function calculate(input: CalculatorInput): CalculationResult {
       label: 'Część przypisana do działalności statutowej',
       amount: statutory,
       kind: 'statutory',
-      note: `netto ${formatPln(allocation.statutory.net)} + VAT ${formatPln(allocation.statutory.vat)} bez prawa do odliczenia — poza rachunkiem podatkowym`,
+      note: `netto ${formatPln(allocation.statutory.net)} + VAT ${formatPln(allocation.statutory.vat)} bez prawa do odliczenia — ${
+        kosztStatutowy ? 'limity jak dla części gospodarczej (wariant B)' : 'bez limitów (wariant A)'
+      }`,
     });
+    const r = rozpisane?.razem;
+    if (kosztStatutowy && r) {
+      lines.splice(
+        1,
+        0,
+        { label: '— w tym w kosztach', amount: r.statutowaWKosztach, kind: 'statutory' },
+        { label: '— w tym ponad limity', amount: r.statutowaPozaKosztami, kind: 'statutory' },
+      );
+    }
   }
 
   const legalBasis = [
@@ -244,7 +280,7 @@ export function calculate(input: CalculatorInput): CalculationResult {
     limit: cost.limit,
     depreciation: cost.depreciation,
     allocation,
-    rozbicie: rozbicie(input, vat, cost, allocation),
+    rozbicie: rozpisane,
   };
 
   return { ...partial, booking: bookingNotes(input, partial) };
