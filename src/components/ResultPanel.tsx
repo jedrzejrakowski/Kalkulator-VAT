@@ -59,7 +59,8 @@ export function ResultPanel({ input, result, plan, onPlanChange }: Props) {
   const kategoria = input.category === 'purchase' ? null : (input.category as KategoriaKosztu);
 
   return (
-    <div className="results">
+    <>
+    <div className="results results-wyniki">
       <section className="card">
         <h2>Podatek naliczony</h2>
         <div className="headline">
@@ -240,6 +241,8 @@ export function ResultPanel({ input, result, plan, onPlanChange }: Props) {
         )}
       </section>
 
+    </div>
+    <div className="results results-dekret">
       {hasAmount ? (
         <section className="card">
           <h2>Jak to zaksięgować</h2>
@@ -364,5 +367,6 @@ export function ResultPanel({ input, result, plan, onPlanChange }: Props) {
         </section>
       ) : null}
     </div>
+    </>
   );
 }

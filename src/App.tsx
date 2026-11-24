@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { Choice, NumberField, PercentField, SelectField } from './components/fields';
+import { NumberField, PercentField, SelectField } from './components/fields';
 import { Logo } from './components/Logo';
 import { ResultPanel } from './components/ResultPanel';
 import { TitleBar } from './components/TitleBar';
@@ -68,6 +68,34 @@ function wczytajPlan(): PlanKont {
   }
 }
 
+/** Krótki przełącznik jednej z kilku opcji; pod spodem opis wybranej. */
+function Przelacznik<T extends string>({
+  etykieta,
+  wartosc,
+  opcje,
+  zmien,
+}: {
+  etykieta: string;
+  wartosc: T;
+  opcje: { value: T; label: string; opis?: string }[];
+  zmien: (v: T) => void;
+}) {
+  const wybrana = opcje.find((o) => o.value === wartosc);
+  return (
+    <div className="field">
+      <span className="field-label">{etykieta}</span>
+      <div className="segmented segmented-pelny" role="group" aria-label={etykieta}>
+        {opcje.map((o) => (
+          <button key={o.value} type="button" aria-pressed={o.value === wartosc} onClick={() => zmien(o.value)}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+      {wybrana?.opis ? <span className="field-hint">{wybrana.opis}</span> : null}
+    </div>
+  );
+}
+
 export default function App() {
   const [plan, setPlan] = useState<PlanKont>(wczytajPlan);
   const zmienPlan = (nowy: PlanKont) => {
@@ -118,75 +146,49 @@ export default function App() {
           <section className="card">
             <h2>Podmiot</h2>
             <p className="card-hint">Decyduje o wskaźniku odliczenia podatku naliczonego.</p>
-            <div className="choice-group">
-              <Choice<EntityType>
-                name="entity"
-                value="business"
-                selected={input.entityType}
-                title="Działalność gospodarcza"
-                description="Pełne prawo do odliczenia ograniczone do 50% z uwagi na użytek mieszany."
-                onSelect={(entityType) => patch({ entityType })}
-              />
-              <Choice<EntityType>
-                name="entity"
-                value="ngo"
-                selected={input.entityType}
-                title="Fundacja lub stowarzyszenie"
-                description="Działalność gospodarcza obok statutowej — najpierw prewspółczynnik, potem ograniczenie do 50%."
-                onSelect={(entityType) => patch({ entityType })}
-              />
-            </div>
+            <Przelacznik<EntityType>
+              etykieta="Rodzaj podmiotu"
+              wartosc={input.entityType}
+              zmien={(entityType) => patch({ entityType })}
+              opcje={[
+                { value: 'business', label: 'Firma', opis: 'Pełne prawo do odliczenia ograniczone do 50% z uwagi na użytek mieszany.' },
+                { value: 'ngo', label: 'Fundacja / stowarzyszenie', opis: 'Najpierw prewspółczynnik, potem ograniczenie do 50%.' },
+              ]}
+            />
 
             {input.entityType === 'ngo' ? (
               <div className="stack">
-                <div className="grid-2">
+                <div className="grid-3">
                   <PercentField
                     label="Prewspółczynnik"
                     value={input.prePercent}
                     onChange={(prePercent) => patch({ prePercent })}
                     roundUp
-                    hint="Udział działalności gospodarczej, art. 86 ust. 2a. Ułamki są dozwolone — ustawa każe zaokrąglić je w górę."
+                    hint="art. 86 ust. 2a, w górę do pełnych %"
                   />
                   <PercentField
                     label="Proporcja sprzedaży"
                     value={input.salesPercent}
                     onChange={(salesPercent) => patch({ salesPercent })}
                     roundUp
-                    hint="Art. 90 ust. 2. Zostaw 100%, jeśli nie masz sprzedaży zwolnionej."
+                    hint="art. 90 ust. 2"
+                  />
+                  <PercentField
+                    label="Udział w koszcie"
+                    value={input.businessSharePercent}
+                    onChange={(businessSharePercent) => patch({ businessSharePercent })}
+                    hint="działalności gospodarczej, wg polityki"
                   />
                 </div>
-                <PercentField
-                  label="Udział działalności gospodarczej w koszcie"
-                  value={input.businessSharePercent}
-                  onChange={(businessSharePercent) => patch({ businessSharePercent })}
-                  hint="Podział kosztu między działalność gospodarczą i statutową według polityki organizacji. Nie wynika wprost z ustawy, więc bez zaokrąglania — ułamki są dozwolone."
+                <Przelacznik<'A' | 'B'>
+                  etykieta="Limity a część statutowa"
+                  wartosc={input.statutoryLimits ? 'B' : 'A'}
+                  zmien={(w) => patch({ statutoryLimits: w === 'B' })}
+                  opcje={[
+                    { value: 'A', label: 'Wariant A — tylko gospodarcza', opis: 'Część statutowa bez limitów, w całości na koncie kosztu.' },
+                    { value: 'B', label: 'Wariant B — cała faktura', opis: 'Limity także od części statutowej. Koszt podatkowy części gospodarczej bez zmian.' },
+                  ]}
                 />
-                <div className="field" role="radiogroup" aria-labelledby="wariant-etykieta">
-                  <span className="field-label" id="wariant-etykieta">
-                    Limity a część statutowa
-                  </span>
-                  <div className="choice-group">
-                    <Choice<'A' | 'B'>
-                      name="wariant"
-                      value="A"
-                      selected={input.statutoryLimits ? 'B' : 'A'}
-                      title="Wariant A — tylko część gospodarcza"
-                      description="Limit wartości pojazdu i reguła 75% dotyczą wyłącznie części gospodarczej. Część statutowa w całości na koncie kosztu."
-                      onSelect={() => patch({ statutoryLimits: false })}
-                    />
-                    <Choice<'A' | 'B'>
-                      name="wariant"
-                      value="B"
-                      selected={input.statutoryLimits ? 'B' : 'A'}
-                      title="Wariant B — cała faktura"
-                      description="Limity liczone także od części statutowej: dzieli się ona na koszt i wyłączenie."
-                      onSelect={() => patch({ statutoryLimits: true })}
-                    />
-                  </div>
-                  <span className="field-hint">
-                    W obu wariantach koszt podatkowy działalności gospodarczej jest taki sam.
-                  </span>
-                </div>
               </div>
             ) : null}
           </section>
@@ -222,29 +224,15 @@ export default function App() {
                   Przepisz obie pozycje z faktury leasingowej. Limit wartości pojazdu obejmuje
                   wyłącznie kapitał.
                 </p>
-                <div className="field" role="radiogroup" aria-labelledby="odsetki-etykieta">
-                  <span className="field-label" id="odsetki-etykieta">
-                    Odsetki w kosztach
-                  </span>
-                  <div className="choice-group">
-                    <Choice<'75' | '100'>
-                      name="odsetki"
-                      value="75"
-                      selected={input.interest75 ? '75' : '100'}
-                      title="75%"
-                      description="Jak inne koszty używania auta — według objaśnień MF z 9 lipca 2019 r. Reszta odsetek wyłączona z kosztów."
-                      onSelect={() => patch({ interest75: true })}
-                    />
-                    <Choice<'75' | '100'>
-                      name="odsetki"
-                      value="100"
-                      selected={input.interest75 ? '75' : '100'}
-                      title="W całości"
-                      description="Całe odsetki w kosztach, bez wyłączenia."
-                      onSelect={() => patch({ interest75: false })}
-                    />
-                  </div>
-                </div>
+                <Przelacznik<'75' | '100'>
+                  etykieta="Odsetki w kosztach"
+                  wartosc={input.interest75 ? '75' : '100'}
+                  zmien={(w) => patch({ interest75: w === '75' })}
+                  opcje={[
+                    { value: '75', label: '75%', opis: 'Jak inne koszty używania auta — objaśnienia MF z 9 lipca 2019 r.' },
+                    { value: '100', label: 'W całości', opis: 'Całe odsetki w kosztach, bez wyłączenia.' },
+                  ]}
+                />
               </>
             ) : (
             <div className="field">
@@ -295,19 +283,15 @@ export default function App() {
 
               {input.category !== 'insuranceAC' ? (
                 <>
-                  <div className="choice-group">
-                    {(Object.keys(POWERTRAIN_LABELS) as Powertrain[]).map((value) => (
-                      <Choice<Powertrain>
-                        key={value}
-                        name="powertrain"
-                        value={value}
-                        selected={input.powertrain}
-                        title={POWERTRAIN_LABELS[value]}
-                        description={`Limit ${formatPln(statutoryLimit(value))}`}
-                        onSelect={(powertrain) => patch({ powertrain })}
-                      />
-                    ))}
-                  </div>
+                  <SelectField<Powertrain>
+                    label="Napęd"
+                    value={input.powertrain}
+                    options={(Object.keys(POWERTRAIN_LABELS) as Powertrain[]).map((value) => ({
+                      value,
+                      label: `${POWERTRAIN_LABELS[value]} — limit ${formatPln(statutoryLimit(value))}`,
+                    }))}
+                    onChange={(powertrain) => patch({ powertrain })}
+                  />
 
                   <div className="stack">
                     <NumberField
@@ -361,28 +345,20 @@ export default function App() {
               ) : null}
 
               {manualRatioAllowed ? (
-                <div className="field">
-                  <label className={`choice${manualRatio ? ' choice-selected' : ''}`}>
-                    <input
-                      type="checkbox"
-                      checked={manualRatio}
-                      onChange={(event) =>
-                        patch({
-                          // Startujemy od proporcji wyliczonej, żeby było co poprawiać.
-                          ratioOverridePercent: event.target.checked
-                            ? Math.round((result.limit?.ratio ?? 1) * 10_000) / 100
-                            : null,
-                        })
-                      }
-                    />
-                    <span>
-                      <span className="choice-title">Wpisz proporcję ręcznie</span>
-                      <span className="choice-desc">
-                        Zamiast proporcji wyliczonej z limitu i wartości pojazdu.
-                      </span>
-                    </span>
-                  </label>
-                </div>
+                <label className="opcja-inline">
+                  <input
+                    type="checkbox"
+                    checked={manualRatio}
+                    onChange={(event) =>
+                      patch({
+                        ratioOverridePercent: event.target.checked
+                          ? Math.round((result.limit?.ratio ?? 1) * 10_000) / 100
+                          : null,
+                      })
+                    }
+                  />
+                  Wpisz proporcję ręcznie
+                </label>
               ) : null}
 
               {manualRatio && manualRatioAllowed ? (

@@ -152,14 +152,55 @@ h3 {
   align-items: start;
 }
 
+/* Średnie ekrany: dane po lewej, wynik i księgowanie jedno pod drugim po prawej. */
 @media (min-width: 960px) {
   .layout {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 
-  .results {
-    position: sticky;
-    top: 24px;
+  .layout > :first-child {
+    grid-row: span 2;
+  }
+
+}
+
+/* Szerokie ekrany: trzy kolumny — dane, wynik, księgowanie. */
+@media (min-width: 1360px) {
+  .page {
+    max-width: 1680px;
+  }
+
+  .layout {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .layout > :first-child {
+    grid-row: auto;
+  }
+
+  /* Równe kolumny: każda rozciąga się do najdłuższej, a jej ostatnia karta
+     wypełnia resztę, więc wszystkie trzy kończą się na jednej linii. */
+  .layout {
+    align-items: stretch;
+  }
+
+  .layout > * {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .layout > * > .card:last-child {
+    flex: 1;
+  }
+
+  .results-dekret > .card:last-child {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .results-dekret .export-actions {
+    margin-top: auto;
+    padding-top: 16px;
   }
 }
 
@@ -735,3 +776,8 @@ details.legal-box ul.legal { margin-top: 10px; }
   white-space: nowrap;
   border: 0;
 }
+
+.segmented-pelny { display: flex; width: 100%; }
+.segmented-pelny button { flex: 1; padding: 8px 10px; }
+.grid-3 { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
+.opcja-inline { display: flex; align-items: center; gap: 8px; font-size: 14px; margin: 4px 0 14px; cursor: pointer; }
