@@ -135,9 +135,11 @@ export default function App() {
       <TitleBar />
       <div className="page">
       <header className="page-header">
-        <Logo size={64} className="page-header__mark" />
-        <h1>Kalkulator celów mieszanych</h1>
-        <span className="page-header__sub">Samochód osobowy w firmie</span>
+        <Logo size={40} className="page-header__mark" />
+        <div className="page-header__tekst">
+          <h1>Kalkulator celów mieszanych</h1>
+          <span className="page-header__sub">Samochód osobowy w firmie</span>
+        </div>
         <PrintDate />
       </header>
 
