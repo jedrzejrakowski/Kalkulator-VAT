@@ -84,7 +84,8 @@ const NKUP_OPIS: Record<KategoriaKosztu, string> = {
 /**
  * Dekret faktury na konta: zobowiązanie brutto po stronie Ma, a po stronie Wn
  * koszt (część statutowa i koszt podatkowy), odsetki, VAT do odliczenia i to,
- * co nie jest kosztem podatkowym. W organizacji dochodzi przeksięgowanie
+ * co nie jest kosztem podatkowym. W wariancie B część statutowa ponad limity
+ * idzie razem z gospodarczą na konta wyłączeń. W organizacji dochodzi przeksięgowanie
  * kosztów rodzajowych przez konto rozliczeniowe na koszty działalności
  * statutowej i gospodarczej — odsetki zostają w kosztach finansowych.
  */
@@ -101,23 +102,36 @@ export function dekret(input: CalculatorInput, result: CalculationResult, plan: 
   };
   const sklad = (statutowa: number, kup: number) =>
     organizacja && statutowa > 0
-      ? `statutowa ${formatPln(statutowa)} + gospodarcza w kosztach ${formatPln(kup)}`
+      ? `statutowa${input.statutoryLimits ? ' w kosztach' : ''} ${formatPln(statutowa)} + gospodarcza w kosztach ${formatPln(kup)}`
       : 'w kosztach podatkowych';
+  /** Wyłączenie z kosztów; w wariancie B razem z częścią statutową ponad limity. */
+  const wylaczenie = (opis: string, statutowa: number, gospodarcza: number) =>
+    statutowa > 0
+      ? `${opis}: statutowa ${formatPln(statutowa)} + gospodarcza ${formatPln(gospodarcza)}`
+      : opis;
 
   dodaj({ ma: plan.kontrahent, kwota: r.brutto, opis: 'zobowiązanie wobec dostawcy — brutto' });
   dodaj({
     wn: plan.koszt[input.category],
-    kwota: round2(r.glowna.statutowa + r.glowna.kup),
-    opis: `${nazwa}: ${sklad(r.glowna.statutowa, r.glowna.kup)}`,
+    kwota: round2(r.glowna.statutowaWKosztach + r.glowna.kup),
+    opis: `${nazwa}: ${sklad(r.glowna.statutowaWKosztach, r.glowna.kup)}`,
   });
   dodaj({
     wn: plan.odsetki,
-    kwota: round2(r.odsetki.statutowa + r.odsetki.kup),
-    opis: `odsetki: ${sklad(r.odsetki.statutowa, r.odsetki.kup)}`,
+    kwota: round2(r.odsetki.statutowaWKosztach + r.odsetki.kup),
+    opis: `odsetki: ${sklad(r.odsetki.statutowaWKosztach, r.odsetki.kup)}`,
   });
   dodaj({ wn: plan.vat, kwota: r.vatOdliczony, opis: 'VAT naliczony do odliczenia' });
-  dodaj({ wn: plan.nkup, kwota: r.glowna.nkup, opis: NKUP_OPIS[input.category] });
-  dodaj({ wn: plan.odsetkiNkup, kwota: r.odsetki.nkup, opis: '25% odsetek wyłączone z kosztów — NKUP' });
+  dodaj({
+    wn: plan.nkup,
+    kwota: round2(r.glowna.statutowaPozaKosztami + r.glowna.nkup),
+    opis: wylaczenie(NKUP_OPIS[input.category], r.glowna.statutowaPozaKosztami, r.glowna.nkup),
+  });
+  dodaj({
+    wn: plan.odsetkiNkup,
+    kwota: round2(r.odsetki.statutowaPozaKosztami + r.odsetki.nkup),
+    opis: wylaczenie('25% odsetek wyłączone z kosztów — NKUP', r.odsetki.statutowaPozaKosztami, r.odsetki.nkup),
+  });
 
   if (organizacja) {
     dodaj({

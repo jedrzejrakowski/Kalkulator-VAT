@@ -10,6 +10,7 @@ const fundacja = (zmiany: Partial<CalculatorInput>): CalculatorInput => ({
   prePercent: 50,
   salesPercent: 100,
   businessSharePercent: 50,
+  statutoryLimits: false,
   amountMode: 'net',
   ...zmiany,
 });
@@ -50,6 +51,47 @@ describe('dekret raty BNP 11854/10/2026 w fundacji', () => {
     expect(Math.round((kwota('402-13') + kwota('408-07')) * 100) / 100).toBe(
       Math.round((kwota('500-02') + kwota('501-01')) * 100) / 100,
     );
+  });
+});
+
+describe('rata BNP w wariancie B (limit 58,44% na całej racie, wg arkusza księgowej)', () => {
+  const rata = (zmiany: Partial<CalculatorInput>) =>
+    fundacja({
+      category: 'leasing',
+      amount: 2216.07,
+      vatRatePercent: 23,
+      interestNet: 38.39,
+      ratioOverridePercent: 58.44,
+      statutoryLimits: true,
+      ...zmiany,
+    });
+
+  it('odsetki w całości — kolumna „Wariant B” arkusza co do grosza', () => {
+    expect(naKonta(rata({ interest75: false }))).toEqual([
+      ['', '202', 2725.77],
+      ['402-13', '', 1492.17], // (1 339,28 + 1 214,05) × 58,44%
+      ['751-01-01', '', 45.01],
+      ['221-01', '', 127.43],
+      ['408-07', '', 1061.16],
+      ['500-02', '490', 1339.28],
+      ['501-01', '490', 1214.05],
+    ]);
+  });
+
+  it('koszt podatkowy działalności gospodarczej taki sam jak w wariancie A', () => {
+    const a = calculate(fundacja({ category: 'leasing', amount: 2216.07, vatRatePercent: 23, interestNet: 38.39, ratioOverridePercent: 58.44, interest75: false }));
+    const b = calculate(rata({ interest75: false }));
+    expect(b.kup).toBe(a.kup);
+    expect(b.nkup).toBe(a.nkup);
+    expect(b.rozbicie!.glowna).toMatchObject({ statutowaWKosztach: 782.68, statutowaPozaKosztami: 556.6 });
+  });
+
+  it('z odsetkami w 75% — także część statutowa odsetek', () => {
+    const pozycje = dekret(rata({}), calculate(rata({})), DOMYSLNY_PLAN_KONT)!;
+    const k = Object.fromEntries(pozycje.filter((x) => x.wn && !x.ma).map((x) => [x.wn, x.kwota]));
+    expect(k['751-01-01']).toBe(33.76); // 17,72 + 16,04
+    expect(k['751-01-02']).toBe(11.25); // 5,90 + 5,35
+    expect(sumyDekretu(pozycje)).toEqual({ wn: 2725.77, ma: 2725.77 });
   });
 });
 

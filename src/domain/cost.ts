@@ -107,7 +107,7 @@ function leasing(input: CalculatorInput, p: PodstawaKosztu): CostResult {
   // Część odsetkowa nie spłaca wartości samochodu, więc limitu wartości nie
   // podlega — ale jest kosztem używania auta, a przy użytku mieszanym te
   // wchodzą do kosztów w 75%. Wyłączenie z reguły 75% dotyczy tylko kapitału.
-  const interestKup = iloczyn(interestBase, OPERATING_COST_FACTOR);
+  const interestKup = input.interest75 ? iloczyn(interestBase, OPERATING_COST_FACTOR) : interestBase;
   const interestNkup = round2(interestBase - interestKup);
 
   const lines: CostLine[] = [
@@ -129,7 +129,7 @@ function leasing(input: CalculatorInput, p: PodstawaKosztu): CostResult {
         : 'nadwyżka wartości pojazdu ponad limit',
     });
   }
-  if (interestBase > 0) {
+  if (interestBase > 0 && input.interest75) {
     lines.push({
       label: 'Część odsetkowa w kosztach — 75%',
       amount: interestKup,
@@ -140,6 +140,13 @@ function leasing(input: CalculatorInput, p: PodstawaKosztu): CostResult {
       label: 'Część odsetkowa wyłączona z kosztów — 25%',
       amount: interestNkup,
       kind: 'nkup',
+    });
+  } else if (interestBase > 0) {
+    lines.push({
+      label: 'Część odsetkowa w kosztach',
+      amount: interestKup,
+      kind: 'kup',
+      note: 'w całości — bez limitu wartości pojazdu i bez reguły 75%',
     });
   }
 
@@ -168,7 +175,9 @@ function leasing(input: CalculatorInput, p: PodstawaKosztu): CostResult {
     depreciation: null,
     legalBasis: [
       'art. 23 ust. 1 pkt 47a ustawy o PIT / art. 16 ust. 1 pkt 49a ustawy o CIT — limit dla opłat leasingowych i najmu',
-      'art. 23 ust. 1 pkt 46a ustawy o PIT / art. 16 ust. 1 pkt 51 ustawy o CIT — część odsetkowa jako koszt używania: 75% przy użytku mieszanym; część kapitałowa jest z tej reguły wyłączona (objaśnienia podatkowe MF z 9 lipca 2019 r.)',
+      input.interest75
+        ? 'art. 23 ust. 1 pkt 46a ustawy o PIT / art. 16 ust. 1 pkt 51 ustawy o CIT — część odsetkowa jako koszt używania: 75% przy użytku mieszanym; część kapitałowa jest z tej reguły wyłączona (objaśnienia podatkowe MF z 9 lipca 2019 r.)'
+        : 'Część odsetkowa w kosztach w całości, tak jak ustawiono w programie — objaśnienia podatkowe MF z 9 lipca 2019 r. wskazują przy użytku mieszanym 75%',
       'art. 23 ust. 5c ustawy o PIT / art. 16 ust. 5c ustawy o CIT — wartość samochodu obejmuje VAT niepodlegający odliczeniu',
     ],
     warnings,

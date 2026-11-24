@@ -48,7 +48,8 @@ Przy racie leasingu wpisuje się osobno kapitał i odsetki netto — tak, jak st
 pozycjach faktury. Limit wartości pojazdu obejmuje tylko kapitał. Odsetki wraz z nieodliczonym
 VAT od nich limitowi nie podlegają, ale są kosztem używania samochodu, więc przy użytku
 mieszanym wchodzą do kosztów w 75% — z reguły 75% wyłączona jest tylko część kapitałowa
-(objaśnienia podatkowe MF z 9 lipca 2019 r.).
+(objaśnienia podatkowe MF z 9 lipca 2019 r.). Przełącznik „Odsetki w kosztach w 75%” pozwala
+ująć je w całości, jeśli tak zdecyduje księgowość.
 
 Podstawą kosztu jest zawsze kwota netto powiększona o VAT niepodlegający odliczeniu
 (art. 23 ust. 5a ustawy o PIT, art. 16 ust. 5a ustawy o CIT).
@@ -84,9 +85,16 @@ Kolejność ma znaczenie: **najpierw podział, potem limity**. Każda część f
 osobno kapitał i odsetki) dzieli się na statutową i gospodarczą. Netto — według udziału
 w koszcie; VAT idzie za swoim źródłem: część statutowa nie ma prawa do odliczenia, więc
 dostaje cały podatek przypadający na nią według prewspółczynnika, a gospodarcza — tylko tę
-część swojego podatku, której nie odliczono. Część statutowa nie jest kosztem podatkowym,
-więc limit wartości pojazdu i reguła 75% jej nie dotyczą; stosuje się je wyłącznie do części
-gospodarczej. Kalkulator podaje ten podział rachunkowy (np. na konta 500 i 501), z odsetkami
+część swojego podatku, której nie odliczono. Dalej są dwa warianty
+do wyboru:
+
+- **wariant B** (domyślny): limit wartości pojazdu i reguła 75% liczone od obu części, bo
+  dotyczą samochodu, a nie rodzaju działalności. Część statutowa dzieli się na tę w kosztach
+  (konto kosztu) i tę ponad limity (konto wyłączeń);
+- **wariant A**: część statutowa bez limitów, w całości na koncie kosztu.
+
+W obu wariantach koszt podatkowy działalności gospodarczej jest ten sam — różni się tylko
+podział części statutowej. Kalkulator podaje ten podział rachunkowy (np. na konta 500 i 501), z odsetkami
 wykazanymi w każdej części osobno. Przy zakupie samochodu podziału nie ma — kosztem są
 dopiero odpisy amortyzacyjne.
 

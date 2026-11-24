@@ -68,6 +68,31 @@ function wczytajPlan(): PlanKont {
   }
 }
 
+/** Pole wyboru w stylu kart „choice”, z tytułem i opisem. */
+function Opcja({
+  zaznaczona,
+  zmien,
+  tytul,
+  opis,
+}: {
+  zaznaczona: boolean;
+  zmien: (wartosc: boolean) => void;
+  tytul: string;
+  opis: string;
+}) {
+  return (
+    <div className="field">
+      <label className={`choice${zaznaczona ? ' choice-selected' : ''}`}>
+        <input type="checkbox" checked={zaznaczona} onChange={(event) => zmien(event.target.checked)} />
+        <span>
+          <span className="choice-title">{tytul}</span>
+          <span className="choice-desc">{opis}</span>
+        </span>
+      </label>
+    </div>
+  );
+}
+
 export default function App() {
   const [plan, setPlan] = useState<PlanKont>(wczytajPlan);
   const zmienPlan = (nowy: PlanKont) => {
@@ -161,6 +186,12 @@ export default function App() {
                   onChange={(businessSharePercent) => patch({ businessSharePercent })}
                   hint="Podział kosztu między działalność gospodarczą i statutową według polityki organizacji. Nie wynika wprost z ustawy, więc bez zaokrąglania — ułamki są dozwolone."
                 />
+                <Opcja
+                  zaznaczona={input.statutoryLimits}
+                  zmien={(statutoryLimits) => patch({ statutoryLimits })}
+                  tytul="Limity także na część statutową (wariant B)"
+                  opis="Limit wartości pojazdu i reguła 75% liczone od całej faktury. Koszt podatkowy działalności gospodarczej się nie zmienia — tylko część statutowa dzieli się na koszt i wyłączenie. Odznacz dla wariantu A: część statutowa bez limitów."
+                />
               </div>
             ) : null}
           </section>
@@ -194,8 +225,14 @@ export default function App() {
                 </div>
                 <p className="field-hint" style={{ marginTop: -8, marginBottom: 16 }}>
                   Przepisz obie pozycje z faktury leasingowej. Limit wartości pojazdu obejmuje
-                  wyłącznie kapitał; odsetki idą do kosztów w 75%, jak inne koszty używania.
+                  wyłącznie kapitał.
                 </p>
+                <Opcja
+                  zaznaczona={input.interest75}
+                  zmien={(interest75) => patch({ interest75 })}
+                  tytul="Odsetki w kosztach w 75%"
+                  opis="Jak inne koszty używania auta — według objaśnień MF z 9 lipca 2019 r. Odznacz, aby ująć odsetki w kosztach w całości."
+                />
               </>
             ) : (
             <div className="field">

@@ -227,8 +227,10 @@ export function ResultPanel({ input, result, plan, onPlanChange }: Props) {
                 </table>
                 <p className="field-hint">
                   Netto według udziału działalności gospodarczej w koszcie (
-                  {input.businessSharePercent}%), VAT według prewspółczynnika ({input.prePercent}%). Limity
-                  i reguła 75% dotyczą tylko części gospodarczej.
+                  {input.businessSharePercent}%), VAT według prewspółczynnika ({input.prePercent}%).{' '}
+                  {input.statutoryLimits
+                    ? 'Wariant B: limity i reguła 75% obejmują obie części; koszt podatkowy to część gospodarcza.'
+                    : 'Wariant A: limity i reguła 75% dotyczą tylko części gospodarczej.'}
                 </p>
               </>
             ) : null}

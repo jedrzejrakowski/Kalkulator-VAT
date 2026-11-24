@@ -60,6 +60,9 @@ export function wierszeRozliczenia(
       poz('Prewspółczynnik', procent(input.prePercent / 100)),
       poz('Proporcja sprzedaży', procent(input.salesPercent / 100)),
       poz('Udział działalności gospodarczej w koszcie', procent(input.businessSharePercent / 100)),
+      poz('Limity na części statutowej', {
+        tekst: input.statutoryLimits ? 'tak — wariant B' : 'nie — wariant A',
+      }),
     );
   }
   w.push(
@@ -69,6 +72,7 @@ export function wierszeRozliczenia(
     w.push(
       poz('Kapitał (netto)', kwota(round2(input.amount - input.interestNet))),
       poz('Odsetki (netto)', kwota(input.interestNet)),
+      poz('Odsetki w kosztach', { tekst: input.interest75 ? '75%' : 'w całości' }),
     );
   } else {
     w.push(poz(`Kwota z faktury (${input.amountMode === 'gross' ? 'brutto' : 'netto'})`, kwota(input.amount)));

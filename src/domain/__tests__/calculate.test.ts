@@ -338,7 +338,7 @@ describe('rozbicie do dekretu', () => {
   it('nie ma go przy zakupie, a poza leasingiem odsetki są zerowe', () => {
     expect(calculate(input({ category: 'purchase', amount: 50000, vehicleValue: 50000 })).rozbicie).toBeNull();
     const paliwo = calculate(input({ category: 'operating', amount: 500 })).rozbicie!;
-    expect(paliwo.odsetki).toEqual({ statutowa: 0, kup: 0, nkup: 0, razem: 0 });
+    expect(paliwo.odsetki).toEqual({ statutowa: 0, statutowaWKosztach: 0, statutowaPozaKosztami: 0, kup: 0, nkup: 0, razem: 0 });
     expect(Math.round((paliwo.razem.razem + paliwo.vatOdliczony) * 100) / 100).toBe(paliwo.brutto);
   });
 

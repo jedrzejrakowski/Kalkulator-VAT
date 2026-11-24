@@ -16,6 +16,8 @@ const fundacja = (zmiany: Partial<CalculatorInput>) =>
     prePercent: 50,
     salesPercent: 100,
     businessSharePercent: 50,
+    // Ręczne rozliczenie tych faktur szło wariantem A: część statutowa bez limitów.
+    statutoryLimits: false,
     amountMode: 'net',
     ...zmiany,
   });
@@ -64,10 +66,10 @@ describe('rata BNP Paribas Leasing 11854/10/2026/RL/LS w fundacji', () => {
   it('rozbicie do dekretu: kapitał i odsetki osobno, jak na kontach 402 i 751', () => {
     expect(r.rozbicie).toEqual({
       // 402: statutowa 1 339,28 + w kosztach 709,49; ponad limit 504,56 (NKUP)
-      glowna: { statutowa: 1339.28, kup: 709.49, nkup: 504.56, razem: 2553.33 },
+      glowna: { statutowa: 1339.28, statutowaWKosztach: 1339.28, statutowaPozaKosztami: 0, kup: 709.49, nkup: 504.56, razem: 2553.33 },
       // 751: statutowa 23,62 + w kosztach 16,04; 25% wyłączone 5,35 (NKUP)
-      odsetki: { statutowa: 23.62, kup: 16.04, nkup: 5.35, razem: 45.01 },
-      razem: { statutowa: 1362.9, kup: 725.53, nkup: 509.91, razem: 2598.34 },
+      odsetki: { statutowa: 23.62, statutowaWKosztach: 23.62, statutowaPozaKosztami: 0, kup: 16.04, nkup: 5.35, razem: 45.01 },
+      razem: { statutowa: 1362.9, statutowaWKosztach: 1362.9, statutowaPozaKosztami: 0, kup: 725.53, nkup: 509.91, razem: 2598.34 },
       vatOdliczony: 127.43,
       brutto: 2725.77,
     });
