@@ -68,31 +68,6 @@ function wczytajPlan(): PlanKont {
   }
 }
 
-/** Pole wyboru w stylu kart „choice”, z tytułem i opisem. */
-function Opcja({
-  zaznaczona,
-  zmien,
-  tytul,
-  opis,
-}: {
-  zaznaczona: boolean;
-  zmien: (wartosc: boolean) => void;
-  tytul: string;
-  opis: string;
-}) {
-  return (
-    <div className="field">
-      <label className={`choice${zaznaczona ? ' choice-selected' : ''}`}>
-        <input type="checkbox" checked={zaznaczona} onChange={(event) => zmien(event.target.checked)} />
-        <span>
-          <span className="choice-title">{tytul}</span>
-          <span className="choice-desc">{opis}</span>
-        </span>
-      </label>
-    </div>
-  );
-}
-
 export default function App() {
   const [plan, setPlan] = useState<PlanKont>(wczytajPlan);
   const zmienPlan = (nowy: PlanKont) => {
@@ -247,12 +222,29 @@ export default function App() {
                   Przepisz obie pozycje z faktury leasingowej. Limit wartości pojazdu obejmuje
                   wyłącznie kapitał.
                 </p>
-                <Opcja
-                  zaznaczona={input.interest75}
-                  zmien={(interest75) => patch({ interest75 })}
-                  tytul="Odsetki w kosztach w 75%"
-                  opis="Jak inne koszty używania auta — według objaśnień MF z 9 lipca 2019 r. Odznacz, aby ująć odsetki w kosztach w całości."
-                />
+                <div className="field" role="radiogroup" aria-labelledby="odsetki-etykieta">
+                  <span className="field-label" id="odsetki-etykieta">
+                    Odsetki w kosztach
+                  </span>
+                  <div className="choice-group">
+                    <Choice<'75' | '100'>
+                      name="odsetki"
+                      value="75"
+                      selected={input.interest75 ? '75' : '100'}
+                      title="75%"
+                      description="Jak inne koszty używania auta — według objaśnień MF z 9 lipca 2019 r. Reszta odsetek wyłączona z kosztów."
+                      onSelect={() => patch({ interest75: true })}
+                    />
+                    <Choice<'75' | '100'>
+                      name="odsetki"
+                      value="100"
+                      selected={input.interest75 ? '75' : '100'}
+                      title="W całości"
+                      description="Całe odsetki w kosztach, bez wyłączenia."
+                      onSelect={() => patch({ interest75: false })}
+                    />
+                  </div>
+                </div>
               </>
             ) : (
             <div className="field">
