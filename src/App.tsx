@@ -186,12 +186,32 @@ export default function App() {
                   onChange={(businessSharePercent) => patch({ businessSharePercent })}
                   hint="Podział kosztu między działalność gospodarczą i statutową według polityki organizacji. Nie wynika wprost z ustawy, więc bez zaokrąglania — ułamki są dozwolone."
                 />
-                <Opcja
-                  zaznaczona={input.statutoryLimits}
-                  zmien={(statutoryLimits) => patch({ statutoryLimits })}
-                  tytul="Limity także na część statutową (wariant B)"
-                  opis="Limit wartości pojazdu i reguła 75% liczone od całej faktury. Koszt podatkowy działalności gospodarczej się nie zmienia — tylko część statutowa dzieli się na koszt i wyłączenie. Odznacz dla wariantu A: część statutowa bez limitów."
-                />
+                <div className="field" role="radiogroup" aria-labelledby="wariant-etykieta">
+                  <span className="field-label" id="wariant-etykieta">
+                    Limity a część statutowa
+                  </span>
+                  <div className="choice-group">
+                    <Choice<'A' | 'B'>
+                      name="wariant"
+                      value="A"
+                      selected={input.statutoryLimits ? 'B' : 'A'}
+                      title="Wariant A — tylko część gospodarcza"
+                      description="Limit wartości pojazdu i reguła 75% dotyczą wyłącznie części gospodarczej. Część statutowa w całości na koncie kosztu."
+                      onSelect={() => patch({ statutoryLimits: false })}
+                    />
+                    <Choice<'A' | 'B'>
+                      name="wariant"
+                      value="B"
+                      selected={input.statutoryLimits ? 'B' : 'A'}
+                      title="Wariant B — cała faktura"
+                      description="Limity liczone także od części statutowej: dzieli się ona na koszt i wyłączenie."
+                      onSelect={() => patch({ statutoryLimits: true })}
+                    />
+                  </div>
+                  <span className="field-hint">
+                    W obu wariantach koszt podatkowy działalności gospodarczej jest taki sam.
+                  </span>
+                </div>
               </div>
             ) : null}
           </section>
