@@ -604,6 +604,64 @@ table.figures .row-note {
   border-top: 1px solid var(--border-strong);
 }
 
+/* Pasek podziału kosztu: koszt podatkowy, wyłączenia i część statutowa. */
+.split {
+  padding: 8px 0 16px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.split__bar {
+  display: flex;
+  gap: 2px;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.split__part {
+  flex-basis: 0;
+  min-width: 2px;
+}
+
+.split__part--kup { background: var(--kup); }
+.split__part--nkup { background: var(--nkup); }
+.split__part--statutory { background: var(--statutory); }
+
+.split__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.split__legend li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.split__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex: none;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.split__value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
 .subhead {
   font-size: 14px;
   color: var(--text);
