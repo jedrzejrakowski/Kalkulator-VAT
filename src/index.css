@@ -1,4 +1,13 @@
+html {
+  /* Skala pisma z panelu ustawień; rozmiary są w rem, więc zmieniają się razem. */
+  font-size: calc(16px * var(--skala, 1));
+}
+
 :root {
+  --skala: 1;
+  /* Napis na wypełnieniu w kolorze wiodącym; w motywie ciemnym kolor wiodący
+     jaśnieje, więc napis musi być ciemny. */
+  --accent-ink: #ffffff;
   --bg: #f4f5f7;
   --surface: #ffffff;
   --surface-alt: #f8f9fb;
@@ -53,6 +62,7 @@
     --titlebar-bg: #163b52;
     --titlebar-ink: #eaf2f8;
     --titlebar-line: rgba(234, 242, 248, 0.28);
+    --accent-ink: #0f1319;
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
     color-scheme: dark;
   }
@@ -79,6 +89,7 @@
   --titlebar-bg: #163b52;
   --titlebar-ink: #eaf2f8;
   --titlebar-line: rgba(234, 242, 248, 0.28);
+  --accent-ink: #0f1319;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
   color-scheme: dark;
 }
@@ -92,7 +103,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
-  font-size: 15px;
+  font-size: 0.9375rem;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
@@ -122,7 +133,7 @@ h3 {
   border: 1px solid transparent;
   color: var(--titlebar-ink);
   --logo-tlo: #ffffff;
-  --logo-auto: #1f5f8b;
+  --logo-auto: var(--titlebar-bg);
 }
 
 .page-header__tekst {
@@ -139,14 +150,14 @@ h3 {
 
 .page-header h1 {
   color: var(--titlebar-ink);
-  font-size: 20px;
+  font-size: 1.25rem;
   font-weight: 500;
   line-height: 1.2;
 }
 
 .page-header__sub {
   display: block;
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--titlebar-ink);
   opacity: 0.8;
   margin-top: 2px;
@@ -302,7 +313,7 @@ h3 {
 }
 
 .card > h2 {
-  font-size: 16px;
+  font-size: 1rem;
   color: var(--text);
   margin-bottom: 4px;
 }
@@ -310,7 +321,7 @@ h3 {
 .card-hint {
   margin: 0 0 16px;
   color: var(--text-muted);
-  font-size: 13px;
+  font-size: 0.8125rem;
 }
 
 .field {
@@ -329,7 +340,7 @@ h3 {
 
 .field-label {
   display: block;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 500;
   color: var(--text);
   margin-bottom: 8px;
@@ -337,7 +348,7 @@ h3 {
 
 .field-hint {
   display: block;
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--text-muted);
   margin-top: 4px;
 }
@@ -354,7 +365,7 @@ select {
   height: 40px;
   padding: 0 12px;
   font: inherit;
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--text);
   background: var(--surface-alt);
   border: 1px solid var(--border-strong);
@@ -382,7 +393,7 @@ select:focus {
   right: 12px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--text-muted);
   pointer-events: none;
 }
@@ -437,13 +448,13 @@ select:focus {
 
 .choice-title {
   display: block;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 500;
 }
 
 .choice-desc {
   display: block;
-  font-size: 12px;
+  font-size: 0.75rem;
   color: var(--text-muted);
   margin-top: 4px;
 }
@@ -458,7 +469,7 @@ select:focus {
 
 .segmented button {
   font: inherit;
-  font-size: 13px;
+  font-size: 0.8125rem;
   padding: 8px 16px;
   border: 0;
   background: transparent;
@@ -473,7 +484,7 @@ select:focus {
 
 .segmented button[aria-pressed='true'] {
   background: var(--accent);
-  color: var(--surface);
+  color: var(--accent-ink);
   font-weight: 500;
 }
 
@@ -489,14 +500,14 @@ select:focus {
 
 .headline-value {
   font-family: var(--font-mono);
-  font-size: 32px;
+  font-size: 2rem;
   font-weight: 500;
   color: var(--accent);
   font-variant-numeric: tabular-nums;
 }
 
 .headline-label {
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--text-muted);
 }
 
@@ -510,7 +521,7 @@ table.figures th,
 table.figures td {
   text-align: left;
   padding: 8px 0;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 400;
   border-bottom: 1px solid var(--border);
 }
@@ -525,12 +536,12 @@ table.figures td {
   text-align: right;
   white-space: nowrap;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--text);
 }
 
 table.dekret thead th {
-  font-size: 12px;
+  font-size: 0.75rem;
   color: var(--text-muted);
   padding-top: 0;
 }
@@ -572,7 +583,7 @@ table.dekret tr.dekret-490 td {
   border: 0;
   padding: 0;
   font: inherit;
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--accent);
   text-decoration: underline;
   cursor: pointer;
@@ -580,7 +591,7 @@ table.dekret tr.dekret-490 td {
 
 table.figures .row-note {
   display: block;
-  font-size: 12px;
+  font-size: 0.75rem;
   color: var(--text-muted);
   font-weight: 400;
   margin-top: 2px;
@@ -640,7 +651,7 @@ table.figures .row-note {
   margin: 12px 0 0;
   padding: 0;
   list-style: none;
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--text-muted);
 }
 
@@ -666,7 +677,7 @@ table.figures .row-note {
 }
 
 .subhead {
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--text);
   margin: 24px 0 8px;
   font-weight: 500;
@@ -687,7 +698,7 @@ table.figures .row-note {
   align-items: baseline;
   justify-content: space-between;
   gap: 4px 16px;
-  font-size: 13px;
+  font-size: 0.8125rem;
   padding: 8px 12px;
   background: var(--surface-alt);
   border-radius: 8px;
@@ -707,7 +718,7 @@ ul.notes {
   padding-left: 18px;
   display: grid;
   gap: 8px;
-  font-size: 14px;
+  font-size: 0.875rem;
 }
 
 ul.notes li {
@@ -719,7 +730,7 @@ ul.legal {
   padding-left: 18px;
   display: grid;
   gap: 4px;
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--text-muted);
 }
 
@@ -728,7 +739,7 @@ ul.legal {
   border: 1px solid var(--warn-border);
   border-radius: 8px;
   padding: 12px;
-  font-size: 13px;
+  font-size: 0.8125rem;
   margin-bottom: 12px;
 }
 
@@ -738,14 +749,14 @@ ul.legal {
 
 .empty {
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: 0.875rem;
   padding: 20px 0;
   text-align: center;
 }
 
 .disclaimer {
   margin-top: 24px;
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--text-muted);
   max-width: 78ch;
 }
@@ -755,7 +766,7 @@ ul.legal {
 .app-titlebar {
   display: none;
   --logo-tlo: #ffffff;
-  --logo-auto: #1f5f8b;
+  --logo-auto: var(--titlebar-bg);
 }
 
 /* Tryb włącza się dopiero wtedy, gdy system odda aplikacji obszar paska.
@@ -779,7 +790,7 @@ ul.legal {
   }
 
   .app-titlebar__name {
-    font-size: 13px;
+    font-size: 0.8125rem;
     font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
@@ -789,7 +800,7 @@ ul.legal {
   .app-titlebar__action {
     margin-left: auto;
     font: inherit;
-    font-size: 12px;
+    font-size: 0.75rem;
     color: var(--titlebar-ink);
     background: transparent;
     border: 1px solid var(--titlebar-line);
@@ -812,7 +823,7 @@ ul.legal {
 
 .page-header__date {
   margin: 0 0 0 auto;
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--text-muted);
 }
 
@@ -826,7 +837,7 @@ ul.legal {
     border: 0;
     border-bottom: 1px solid #cfd4dc;
     border-radius: 0;
-    --logo-tlo: #1f5f8b;
+    --logo-tlo: var(--accent-druk, #1f5f8b);
     --logo-auto: #ffffff;
   }
 
@@ -862,7 +873,7 @@ ul.legal {
 
 .export-button {
   font: inherit;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 500;
   color: var(--text);
   background: var(--surface);
@@ -878,7 +889,7 @@ ul.legal {
 .export-button:active { transform: scale(0.98); }
 
 .export-button--primary {
-  color: var(--surface);
+  color: var(--accent-ink);
   background: var(--accent);
   border-color: var(--accent);
 }
@@ -896,7 +907,7 @@ details.legal-box {
 
 details.legal-box > summary {
   cursor: pointer;
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--text);
   font-weight: 500;
   list-style: none;
@@ -920,7 +931,7 @@ details.legal-box ul.legal { margin-top: 10px; }
 
 .legal-box__note {
   margin: 12px 0 0;
-  font-size: 13px;
+  font-size: 0.8125rem;
   line-height: 1.55;
   color: var(--text-muted);
   padding-top: 12px;
@@ -946,4 +957,132 @@ details.legal-box ul.legal { margin-top: 10px; }
 .segmented-pelny { display: flex; width: 100%; }
 .segmented-pelny button { flex: 1; padding: 8px 10px; }
 .grid-3 { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
-.opcja-inline { display: flex; align-items: center; gap: 8px; font-size: 14px; margin: 4px 0 16px; cursor: pointer; }
+.opcja-inline { display: flex; align-items: center; gap: 8px; font-size: 0.875rem; margin: 4px 0 16px; cursor: pointer; }
+
+/* --- ustawienia wyglądu --- */
+
+/* Trybik siedzi w niebieskim pasku, więc nosi jego barwy zamiast barw kart. */
+.zebatka {
+  margin-left: auto;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  border: 1px solid var(--titlebar-line);
+  background: transparent;
+  color: var(--titlebar-ink);
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.zebatka:hover { background: var(--titlebar-line); }
+.zebatka:focus-visible { outline: 2px solid var(--titlebar-ink); outline-offset: 2px; }
+
+dialog.ustawienia {
+  width: min(440px, calc(100vw - 32px));
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 12px 48px rgba(15, 20, 30, 0.24);
+}
+
+dialog.ustawienia::backdrop { background: rgba(12, 16, 22, 0.45); }
+
+.ustawienia__belka {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.ustawienia__belka h2 {
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.ustawienia__zamknij {
+  font: inherit;
+  font-size: 0.875rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.ustawienia__zamknij:hover { background: var(--surface-alt); color: var(--text); }
+.ustawienia__zamknij:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.ustawienia__tresc {
+  padding: 18px;
+  display: grid;
+  gap: 20px;
+  max-height: min(62vh, 460px);
+  overflow-y: auto;
+}
+
+.ustawienia__tresc h3 {
+  font-size: 0.84375rem;
+  font-weight: 500;
+  margin: 0 0 8px;
+}
+
+.swatche, .kroje { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+.swatch, .krój {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font: inherit;
+  font-size: 0.84375rem;
+  text-align: left;
+  padding: 9px 11px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--surface-alt);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.swatch:hover, .krój:hover { border-color: var(--accent); }
+.swatch:focus-visible, .krój:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.swatch--on, .krój--on {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  font-weight: 500;
+}
+
+.swatch__plama {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  flex: none;
+  background: var(--probka);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.16);
+}
+
+.ustawienia__stopka {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-alt);
+}
+
+
+@media print {
+  /* Wydruk zawsze w jasnych barwach wybranej palety, także gdy na ekranie jest motyw ciemny. */
+  html { --accent: var(--accent-druk, #1f5f8b) !important; --accent-ink: #ffffff !important; }
+  .zebatka, dialog.ustawienia { display: none; }
+}

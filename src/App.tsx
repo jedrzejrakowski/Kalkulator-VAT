@@ -4,6 +4,8 @@ import { NumberField, PercentField, SelectField } from './components/fields';
 import { Logo } from './components/Logo';
 import { ResultPanel } from './components/ResultPanel';
 import { TitleBar } from './components/TitleBar';
+import { PanelUstawien } from './components/PanelUstawien';
+import { PALETY, czyCiemny, wczytaj as wczytajUstawienia, zapisz as zapiszUstawienia, zastosuj, type Ustawienia } from './domain/ustawienia';
 import { calculate } from './domain/calculate';
 import { uzupelnijPlan, type PlanKont } from './domain/dekret';
 import { DEFAULT_INPUT, VAT_RATES } from './domain/defaults';
@@ -107,6 +109,25 @@ export default function App() {
     }
   };
   const [input, setInput] = useState<CalculatorInput>(DEFAULT_INPUT);
+
+  const [ustawienia, setUstawienia] = useState<Ustawienia>(wczytajUstawienia);
+  const [panelOtwarty, setPanelOtwarty] = useState(false);
+
+  // Ustawienia przenosimy do zmiennych CSS i nasłuchujemy zmiany motywu systemu,
+  // bo przy wyborze „jak w systemie” paleta musi za nim podążać.
+  useEffect(() => {
+    const pytanie = window.matchMedia('(prefers-color-scheme: dark)');
+    const nanies = () => {
+      zastosuj(ustawienia, document.documentElement, pytanie.matches);
+      // Kolor paska okna w zainstalowanej aplikacji i na telefonie idzie za paletą.
+      const odcien = PALETY[ustawienia.paleta][czyCiemny(ustawienia, pytanie.matches) ? 'ciemny' : 'jasny'];
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', odcien.titlebarBg);
+    };
+    nanies();
+    zapiszUstawienia(ustawienia);
+    pytanie.addEventListener('change', nanies);
+    return () => pytanie.removeEventListener('change', nanies);
+  }, [ustawienia]);
   const result = useMemo(() => calculate(input), [input]);
 
   const patch = (changes: Partial<CalculatorInput>) =>
@@ -141,7 +162,27 @@ export default function App() {
           <span className="page-header__sub">Samochód osobowy w firmie</span>
         </div>
         <PrintDate />
+        <button
+          type="button"
+          className="zebatka"
+          onClick={() => setPanelOtwarty(true)}
+          aria-label="Ustawienia wyglądu"
+          title="Ustawienia wyglądu"
+        >
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.7 1.7 0 0 0 .33 1.87l.06.06a2 2 0 1 1-2.830 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.33 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 8.9 19.3a1.7 1.7 0 0 0-1.87.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.53 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.7 8.9a1.7 1.7 0 0 0-.33-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.53 1.7 1.7 0 0 0 10 2.98V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.33 1.87V10a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z" />
+          </svg>
+        </button>
       </header>
+
+      <PanelUstawien
+        otwarty={panelOtwarty}
+        ustawienia={ustawienia}
+        onZmiana={setUstawienia}
+        onZamknij={() => setPanelOtwarty(false)}
+      />
 
       <div className="layout">
         <div>
