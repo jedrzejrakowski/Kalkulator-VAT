@@ -25,16 +25,14 @@
   --radius: 10px;
   --shadow: 0 1px 2px rgba(20, 25, 35, 0.06), 0 4px 12px rgba(20, 25, 35, 0.04);
   --scrollbar-thumb: #8b919c;
+  --scrollbar-thumb-hover: #5f6672;
   color-scheme: light;
-  /* Cienkie paski przewijania bez strzałek, jak w programach na pulpit.
-     scrollbar-color się dziedziczy, więc obejmuje też panele. */
-  scrollbar-color: var(--scrollbar-thumb) transparent;
-  scrollbar-width: thin;
 }
 
 @media (prefers-contrast: more) {
   :root {
     --scrollbar-thumb: var(--text);
+    --scrollbar-thumb-hover: var(--text);
   }
 }
 
@@ -66,6 +64,7 @@
     --titlebar-line: rgba(234, 242, 248, 0.28);
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
     --scrollbar-thumb: #6b7483;
+    --scrollbar-thumb-hover: #98a1b0;
     color-scheme: dark;
   }
 }
@@ -93,11 +92,51 @@
   --titlebar-line: rgba(234, 242, 248, 0.28);
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
   --scrollbar-thumb: #6b7483;
+  --scrollbar-thumb-hover: #98a1b0;
   color-scheme: dark;
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* Paski przewijania jak w programie na pulpit: zaokrąglony kciuk z marginesem,
+   bez strzałek i bez toru. Chrome i Edge przy scrollbar-color/scrollbar-width
+   tylko zwężają systemowy pasek, więc rysujemy go przez ::-webkit-scrollbar;
+   właściwości standardowe dostaje tylko przeglądarka bez tych selektorów
+   (Firefox), bo w Chromium wyłączyłyby poniższe style. */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  background-clip: padding-box;
+  border: 3px solid transparent;
+  border-radius: 6px;
+  min-height: 40px;
+}
+
+::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:active {
+  background-color: var(--scrollbar-thumb-hover);
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+    scrollbar-width: thin;
+  }
 }
 
 body {
@@ -263,7 +302,6 @@ h3 {
     background: var(--surface);
     border-right: 1px solid var(--border);
     scrollbar-gutter: stable;
-    scrollbar-width: thin;
   }
 
   .layout > :last-child {
