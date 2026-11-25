@@ -107,6 +107,19 @@ describe('dekret paliwa Orlen F 33394/4472/26 w fundacji', () => {
       ['501-01', '490', 192.64], // 144,48 + 48,16
     ]);
   });
+
+  it('w wariancie B 75% dotyczy też części statutowej — potwierdzone przez księgową', () => {
+    // Podstawa obu części to netto + VAT nieodliczony; do kosztów 75%, 25% na 408-07.
+    const input = fundacja({ category: 'operating', amount: 370.46, vatRatePercent: 8, statutoryLimits: true });
+    expect(naKonta(input)).toEqual([
+      ['', '202', 400.1],
+      ['401-01', '', 294.52], // statutowa 150,04 + gospodarcza 144,48
+      ['221-01', '', 7.41],
+      ['408-07', '', 98.17], // statutowa 50,01 + gospodarcza 48,16
+      ['500-02', '490', 200.05],
+      ['501-01', '490', 192.64],
+    ]);
+  });
 });
 
 describe('dekret w firmie', () => {
