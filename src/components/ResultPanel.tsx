@@ -237,7 +237,7 @@ export function ResultPanel({ input, result, plan, onPlanChange }: Props) {
             ) : null}
           </>
         ) : (
-          <p className="empty">Wpisz kwotę z faktury, aby zobaczyć rozliczenie.</p>
+          <p className="empty">Wpisz kwotę z faktury, aby zobaczyć rozliczenie</p>
         )}
       </section>
 
@@ -357,7 +357,7 @@ export function ResultPanel({ input, result, plan, onPlanChange }: Props) {
           </details>
 
           <div className="export-actions no-print">
-            <button type="button" className="export-button" onClick={exportPdf}>
+            <button type="button" className="export-button export-button--primary" onClick={exportPdf}>
               Zapisz jako PDF
             </button>
             <button type="button" className="export-button" onClick={() => exportXlsx(input, result, plan)}>
@@ -365,7 +365,12 @@ export function ResultPanel({ input, result, plan, onPlanChange }: Props) {
             </button>
           </div>
         </section>
-      ) : null}
+      ) : (
+        <section className="card">
+          <h2>Jak to zaksięgować</h2>
+          <p className="empty">Dekret pojawi się po wpisaniu kwoty</p>
+        </section>
+      )}
     </div>
     </>
   );
