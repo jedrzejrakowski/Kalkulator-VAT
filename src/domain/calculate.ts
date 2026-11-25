@@ -286,6 +286,29 @@ export function calculate(input: CalculatorInput): CalculationResult {
   return { ...partial, booking: bookingNotes(input, partial) };
 }
 
+/**
+ * Udziały części w całości, zaokrąglone do setnych procenta tak, żeby zawsze
+ * dawały razem 100%: zaokrąglamy w dół, a brakujące setne dostają części
+ * z największą resztą (metoda największych reszt).
+ */
+export function udzialy(kwoty: number[]): number[] {
+  const razem = kwoty.reduce((s, k) => s + k, 0);
+  if (razem <= 0) return kwoty.map(() => 0);
+  const SKALA = 10_000; // 100% w setnych procenta
+  const dokladne = kwoty.map((k) => (k / razem) * SKALA);
+  const czesci = dokladne.map(Math.floor);
+  let brak = SKALA - czesci.reduce((s, c) => s + c, 0);
+  const kolejnosc = dokladne
+    .map((d, i) => ({ i, reszta: d - Math.floor(d) }))
+    .sort((a, b) => b.reszta - a.reszta);
+  for (const { i } of kolejnosc) {
+    if (brak <= 0) break;
+    czesci[i] += 1;
+    brak -= 1;
+  }
+  return czesci.map((c) => c / SKALA);
+}
+
 export interface CzescKosztu {
   rodzaj: 'kup' | 'nkup' | 'statutory';
   kwota: number;

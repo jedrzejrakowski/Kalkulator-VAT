@@ -1,4 +1,4 @@
-import { podzialKosztu, type CzescKosztu } from '../domain/calculate';
+import { podzialKosztu, udzialy, type CzescKosztu } from '../domain/calculate';
 import { DOMYSLNY_PLAN_KONT, dekret, sumyDekretu, type KategoriaKosztu, type PlanKont } from '../domain/dekret';
 import { formatPln, formatRate } from '../domain/money';
 import { TYP_XLSX, plikXlsx } from '../domain/xlsx';
@@ -30,6 +30,8 @@ const CZESC_ETYKIETA: Record<CzescKosztu['rodzaj'], string> = {
 function PasekPodzialu({ czesci }: { czesci: CzescKosztu[] }) {
   const razem = czesci.reduce((s, c) => s + c.kwota, 0);
   if (razem <= 0) return null;
+  // Procenty zawsze sumują się do 100%, bez 99,99% z zaokrągleń.
+  const procenty = udzialy(czesci.map((c) => c.kwota));
   return (
     <div className="split">
       <div className="split__bar" aria-hidden="true">
@@ -38,11 +40,11 @@ function PasekPodzialu({ czesci }: { czesci: CzescKosztu[] }) {
         ))}
       </div>
       <ul className="split__legend">
-        {czesci.map((c) => (
+        {czesci.map((c, i) => (
           <li key={c.rodzaj}>
             <span className={`split__dot split__part--${c.rodzaj}`} aria-hidden="true" />
             {CZESC_ETYKIETA[c.rodzaj]}
-            <span className="split__value">{formatRate(c.kwota / razem)}</span>
+            <span className="split__value">{formatRate(procenty[i])}</span>
           </li>
         ))}
       </ul>
