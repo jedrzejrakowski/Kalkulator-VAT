@@ -29,6 +29,7 @@ describe('rata BNP Paribas Leasing 11854/10/2026/RL/LS w fundacji', () => {
     vatRatePercent: 23,
     interestNet: 38.39,
     ratioOverridePercent: 58.44,
+    interest75: true,
   });
 
   it('kwoty faktury i VAT do odliczenia', () => {
