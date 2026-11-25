@@ -285,3 +285,29 @@ export function calculate(input: CalculatorInput): CalculationResult {
 
   return { ...partial, booking: bookingNotes(input, partial) };
 }
+
+export interface CzescKosztu {
+  rodzaj: 'kup' | 'nkup' | 'statutory';
+  kwota: number;
+}
+
+/**
+ * Cały koszt (netto + VAT nieodliczony) w trzech częściach do paska podziału.
+ * Przy zakupie bierzemy wartość początkową: część, która przez odpisy wejdzie
+ * do kosztów, i nadwyżkę ponad limit, która nie wejdzie nigdy.
+ */
+export function podzialKosztu(result: CalculationResult): CzescKosztu[] {
+  const r = result.rozbicie?.razem;
+  const d = result.depreciation;
+  const [kup, nkup] = r
+    ? [r.kup, r.nkup]
+    : d
+      ? [round2(d.initialValue - d.lifetimeNkup), d.lifetimeNkup]
+      : [0, 0];
+  const statutory = r ? r.statutowa : result.statutory;
+  return [
+    { rodzaj: 'kup' as const, kwota: kup },
+    { rodzaj: 'nkup' as const, kwota: nkup },
+    { rodzaj: 'statutory' as const, kwota: statutory },
+  ].filter((c) => c.kwota > 0);
+}
