@@ -24,7 +24,18 @@
   --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --radius: 10px;
   --shadow: 0 1px 2px rgba(20, 25, 35, 0.06), 0 4px 12px rgba(20, 25, 35, 0.04);
+  --scrollbar-thumb: #8b919c;
   color-scheme: light;
+  /* Cienkie paski przewijania bez strzałek, jak w programach na pulpit.
+     scrollbar-color się dziedziczy, więc obejmuje też panele. */
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+  scrollbar-width: thin;
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --scrollbar-thumb: var(--text);
+  }
 }
 
 /* Motyw ciemny musi zadziałać w trzech stanach: bez atrybutu na <html> decyduje
@@ -54,6 +65,7 @@
     --titlebar-ink: #eaf2f8;
     --titlebar-line: rgba(234, 242, 248, 0.28);
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
+    --scrollbar-thumb: #6b7483;
     color-scheme: dark;
   }
 }
@@ -80,6 +92,7 @@
   --titlebar-ink: #eaf2f8;
   --titlebar-line: rgba(234, 242, 248, 0.28);
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
+  --scrollbar-thumb: #6b7483;
   color-scheme: dark;
 }
 
@@ -250,6 +263,7 @@ h3 {
     background: var(--surface);
     border-right: 1px solid var(--border);
     scrollbar-gutter: stable;
+    scrollbar-width: thin;
   }
 
   .layout > :last-child {
