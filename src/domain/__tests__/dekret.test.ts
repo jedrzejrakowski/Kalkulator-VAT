@@ -25,6 +25,7 @@ describe('dekret raty BNP 11854/10/2026 w fundacji', () => {
     vatRatePercent: 23,
     interestNet: 38.39,
     ratioOverridePercent: 58.44,
+    interest75: true,
   });
 
   it('odpowiada dekretowi księgowej, z odsetkami w 75%', () => {
@@ -78,6 +79,10 @@ describe('rata BNP w wariancie B (limit 58,44% na całej racie, wg arkusza księ
     ]);
   });
 
+  it('domyślnie odsetki w całości, jak w arkuszu księgowej', () => {
+    expect(naKonta(rata({}))).toEqual(naKonta(rata({ interest75: false })));
+  });
+
   it('koszt podatkowy działalności gospodarczej taki sam jak w wariancie A', () => {
     const a = calculate(fundacja({ category: 'leasing', amount: 2216.07, vatRatePercent: 23, interestNet: 38.39, ratioOverridePercent: 58.44, interest75: false }));
     const b = calculate(rata({ interest75: false }));
@@ -87,7 +92,7 @@ describe('rata BNP w wariancie B (limit 58,44% na całej racie, wg arkusza księ
   });
 
   it('z odsetkami w 75% — także część statutowa odsetek', () => {
-    const pozycje = dekret(rata({}), calculate(rata({})), DOMYSLNY_PLAN_KONT)!;
+    const pozycje = dekret(rata({ interest75: true }), calculate(rata({ interest75: true })), DOMYSLNY_PLAN_KONT)!;
     const k = Object.fromEntries(pozycje.filter((x) => x.wn && !x.ma).map((x) => [x.wn, x.kwota]));
     expect(k['751-01-01']).toBe(33.76); // 17,72 + 16,04
     expect(k['751-01-02']).toBe(11.25); // 5,90 + 5,35
@@ -105,6 +110,19 @@ describe('dekret paliwa Orlen F 33394/4472/26 w fundacji', () => {
       ['408-07', '', 48.16],
       ['500-02', '490', 200.05],
       ['501-01', '490', 192.64], // 144,48 + 48,16
+    ]);
+  });
+
+  it('w wariancie B 75% dotyczy też części statutowej — potwierdzone przez księgową', () => {
+    // Podstawa obu części to netto + VAT nieodliczony; do kosztów 75%, 25% na 408-07.
+    const input = fundacja({ category: 'operating', amount: 370.46, vatRatePercent: 8, statutoryLimits: true });
+    expect(naKonta(input)).toEqual([
+      ['', '202', 400.1],
+      ['401-01', '', 294.52], // statutowa 150,04 + gospodarcza 144,48
+      ['221-01', '', 7.41],
+      ['408-07', '', 98.17], // statutowa 50,01 + gospodarcza 48,16
+      ['500-02', '490', 200.05],
+      ['501-01', '490', 192.64],
     ]);
   });
 });

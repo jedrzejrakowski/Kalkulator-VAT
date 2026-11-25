@@ -272,8 +272,8 @@ export default function App() {
                   wartosc={input.interest75 ? '75' : '100'}
                   zmien={(w) => patch({ interest75: w === '75' })}
                   opcje={[
-                    { value: '75', label: '75%', opis: 'Jak inne koszty używania auta — objaśnienia MF z 9 lipca 2019 r.' },
-                    { value: '100', label: 'W całości', opis: 'Całe odsetki w kosztach, bez wyłączenia.' },
+                    { value: '75', label: '75%', opis: 'Jak inne koszty używania auta — 25% poza kosztami (art. 16 ust. 1 pkt 51 CIT).' },
+                    { value: '100', label: 'W całości', opis: 'Odsetki to koszt finansowania — w kosztach bez wyłączenia.' },
                   ]}
                 />
               </>

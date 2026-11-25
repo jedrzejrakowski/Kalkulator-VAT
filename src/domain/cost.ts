@@ -176,8 +176,8 @@ function leasing(input: CalculatorInput, p: PodstawaKosztu): CostResult {
     legalBasis: [
       'art. 23 ust. 1 pkt 47a ustawy o PIT / art. 16 ust. 1 pkt 49a ustawy o CIT — limit dla opłat leasingowych i najmu',
       input.interest75
-        ? 'art. 23 ust. 1 pkt 46a ustawy o PIT / art. 16 ust. 1 pkt 51 ustawy o CIT — część odsetkowa jako koszt używania: 75% przy użytku mieszanym; część kapitałowa jest z tej reguły wyłączona (objaśnienia podatkowe MF z 9 lipca 2019 r.)'
-        : 'Część odsetkowa w kosztach w całości, tak jak ustawiono w programie — objaśnienia podatkowe MF z 9 lipca 2019 r. wskazują przy użytku mieszanym 75%',
+        ? 'art. 23 ust. 1 pkt 46a ustawy o PIT / art. 16 ust. 1 pkt 51 ustawy o CIT — część odsetkowa jako koszt używania samochodu: 75% przy użytku mieszanym'
+        : 'Część odsetkowa w kosztach w całości — jako koszt finansowania nie podlega limitowi wartości ani regule 75% (kwestia sporna: część źródeł stosuje do odsetek 75%)',
       'art. 23 ust. 5c ustawy o PIT / art. 16 ust. 5c ustawy o CIT — wartość samochodu obejmuje VAT niepodlegający odliczeniu',
     ],
     warnings,

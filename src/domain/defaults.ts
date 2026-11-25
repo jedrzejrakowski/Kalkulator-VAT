@@ -13,7 +13,7 @@ export const DEFAULT_INPUT: CalculatorInput = {
   amount: 0,
   vatRatePercent: 23,
   interestNet: 0,
-  interest75: true,
+  interest75: false,
 
   powertrain: 'emissionHigh',
   limitOverride: null,
