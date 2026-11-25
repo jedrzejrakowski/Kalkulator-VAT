@@ -1,3 +1,4 @@
+import { podzialKosztu, type CzescKosztu } from '../domain/calculate';
 import { DOMYSLNY_PLAN_KONT, dekret, sumyDekretu, type KategoriaKosztu, type PlanKont } from '../domain/dekret';
 import { formatPln, formatRate } from '../domain/money';
 import { TYP_XLSX, plikXlsx } from '../domain/xlsx';
@@ -16,6 +17,36 @@ function PoleKonta({ etykieta, wartosc, zmien }: { etykieta: string; wartosc: st
       <span className="field-label">{etykieta}</span>
       <input type="text" value={wartosc} spellCheck={false} autoComplete="off" onChange={(e) => zmien(e.target.value.trim())} />
     </label>
+  );
+}
+
+const CZESC_ETYKIETA: Record<CzescKosztu['rodzaj'], string> = {
+  kup: 'W kosztach podatkowych',
+  nkup: 'Poza kosztami',
+  statutory: 'Działalność statutowa',
+};
+
+/** Pasek podziału całego kosztu — te same barwy co w logo i w wierszach tabeli. */
+function PasekPodzialu({ czesci }: { czesci: CzescKosztu[] }) {
+  const razem = czesci.reduce((s, c) => s + c.kwota, 0);
+  if (razem <= 0) return null;
+  return (
+    <div className="split">
+      <div className="split__bar" aria-hidden="true">
+        {czesci.map((c) => (
+          <span key={c.rodzaj} className={`split__part split__part--${c.rodzaj}`} style={{ flexGrow: c.kwota }} />
+        ))}
+      </div>
+      <ul className="split__legend">
+        {czesci.map((c) => (
+          <li key={c.rodzaj}>
+            <span className={`split__dot split__part--${c.rodzaj}`} aria-hidden="true" />
+            {CZESC_ETYKIETA[c.rodzaj]}
+            <span className="split__value">{formatRate(c.kwota / razem)}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -118,6 +149,7 @@ export function ResultPanel({ input, result, plan, onPlanChange }: Props) {
         <h2>Koszt podatkowy</h2>
         {hasAmount ? (
           <>
+            <PasekPodzialu czesci={podzialKosztu(result)} />
             <table className="figures">
               <tbody>
                 {result.lines.map((line, index) => (
@@ -237,7 +269,7 @@ export function ResultPanel({ input, result, plan, onPlanChange }: Props) {
             ) : null}
           </>
         ) : (
-          <p className="empty">Wpisz kwotę z faktury, aby zobaczyć rozliczenie.</p>
+          <p className="empty">Wpisz kwotę z faktury, aby zobaczyć rozliczenie</p>
         )}
       </section>
 
@@ -357,7 +389,7 @@ export function ResultPanel({ input, result, plan, onPlanChange }: Props) {
           </details>
 
           <div className="export-actions no-print">
-            <button type="button" className="export-button" onClick={exportPdf}>
+            <button type="button" className="export-button export-button--primary" onClick={exportPdf}>
               Zapisz jako PDF
             </button>
             <button type="button" className="export-button" onClick={() => exportXlsx(input, result, plan)}>
@@ -365,7 +397,12 @@ export function ResultPanel({ input, result, plan, onPlanChange }: Props) {
             </button>
           </div>
         </section>
-      ) : null}
+      ) : (
+        <section className="card">
+          <h2>Jak to zaksięgować</h2>
+          <p className="empty">Dekret pojawi się po wpisaniu kwoty</p>
+        </section>
+      )}
     </div>
     </>
   );

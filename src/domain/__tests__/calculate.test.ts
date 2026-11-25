@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { calculate } from '../calculate';
+import { calculate, podzialKosztu } from '../calculate';
+import { round2 } from '../money';
 import { DEFAULT_INPUT } from '../defaults';
 import { splitAmount } from '../vat';
 import type { CalculatorInput } from '../types';
@@ -350,5 +351,27 @@ describe('rozbicie do dekretu', () => {
     expect(r.odsetki.statutowa).toBe(0);
     expect(Math.round((r.razem.razem + r.vatOdliczony) * 100) / 100).toBe(r.brutto);
     expect(Math.round((r.glowna.razem + r.odsetki.razem) * 100) / 100).toBe(r.razem.razem);
+  });
+});
+
+describe('pasek podziału kosztu', () => {
+  const suma = (i: CalculatorInput) =>
+    round2(podzialKosztu(calculate(i)).reduce((s, c) => s + c.kwota, 0));
+  const koszt = (i: CalculatorInput) => {
+    const { vat } = calculate(i);
+    return round2(vat.gross - vat.deductible);
+  };
+
+  it.each([
+    ['eksploatacja w firmie', input({ amount: 1230 })],
+    ['leasing fundacji, wariant B', input({ entityType: 'ngo', category: 'leasing', amountMode: 'net', amount: 2780, interestNet: 380, vehicleValue: 250_000 })],
+    ['zakup w firmie', input({ category: 'purchase', amountMode: 'net', amount: 200_000 })],
+    ['zakup w fundacji', input({ entityType: 'ngo', category: 'purchase', amountMode: 'net', amount: 200_000 })],
+  ])('części sumują się do całego kosztu — %s', (_, i) => {
+    expect(suma(i)).toBe(koszt(i));
+  });
+
+  it('pomija puste części', () => {
+    expect(podzialKosztu(calculate(input({ amount: 1230 }))).map((c) => c.rodzaj)).toEqual(['kup', 'nkup']);
   });
 });
