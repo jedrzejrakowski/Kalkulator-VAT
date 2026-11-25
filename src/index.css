@@ -24,19 +24,7 @@
   --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --radius: 10px;
   --shadow: 0 1px 2px rgba(20, 25, 35, 0.06), 0 4px 12px rgba(20, 25, 35, 0.04);
-  --scrollbar-track: #dfe3e9;
-  --scrollbar-groove-shadow: rgba(20, 25, 35, 0.22);
-  --scrollbar-groove-line: rgba(20, 25, 35, 0.06);
-  --scrollbar-thumb: #1f5f8b;
-  --scrollbar-thumb-hover: #174a6d;
   color-scheme: light;
-}
-
-@media (prefers-contrast: more) {
-  :root {
-    --scrollbar-thumb: var(--text);
-    --scrollbar-thumb-hover: var(--text);
-  }
 }
 
 /* Motyw ciemny musi zadziałać w trzech stanach: bez atrybutu na <html> decyduje
@@ -66,11 +54,6 @@
     --titlebar-ink: #eaf2f8;
     --titlebar-line: rgba(234, 242, 248, 0.28);
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
-    --scrollbar-track: #101318;
-    --scrollbar-groove-shadow: rgba(0, 0, 0, 0.7);
-    --scrollbar-groove-line: rgba(255, 255, 255, 0.06);
-    --scrollbar-thumb: #d4d9e1;
-    --scrollbar-thumb-hover: #ffffff;
     color-scheme: dark;
   }
 }
@@ -97,70 +80,12 @@
   --titlebar-ink: #eaf2f8;
   --titlebar-line: rgba(234, 242, 248, 0.28);
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
-  --scrollbar-track: #101318;
-  --scrollbar-groove-shadow: rgba(0, 0, 0, 0.7);
-  --scrollbar-groove-line: rgba(255, 255, 255, 0.06);
-  --scrollbar-thumb: #d4d9e1;
-  --scrollbar-thumb-hover: #ffffff;
   color-scheme: dark;
 }
 
 * {
   box-sizing: border-box;
 }
-
-/* Pasek przewijania jak w programie na pulpit: wgłębiony rowek z cieniem
-   w środku i wąska, błyszcząca belka, bez strzałek. Chrome i Edge przy
-   scrollbar-color/scrollbar-width tylko zwężają systemowy pasek, więc
-   rysujemy go przez ::-webkit-scrollbar; właściwości standardowe dostaje
-   tylko przeglądarka bez tych selektorów (Firefox), bo w Chromium
-   wyłączyłyby poniższe style. */
-::-webkit-scrollbar {
-  width: 16px;
-  height: 16px;
-}
-
-::-webkit-scrollbar-button,
-::-webkit-scrollbar-corner {
-  display: none;
-  background: transparent;
-}
-
-::-webkit-scrollbar-track {
-  margin: 4px 0;
-  background-color: var(--scrollbar-track);
-  background-clip: padding-box;
-  border: 2px solid transparent;
-  border-radius: 8px;
-  box-shadow:
-    inset 0 1px 3px var(--scrollbar-groove-shadow),
-    inset 0 0 0 1px var(--scrollbar-groove-line);
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: var(--scrollbar-thumb);
-  /* Połysk: jaśniejsza lewa krawędź, jak na wypukłej belce. */
-  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 70%);
-  background-clip: padding-box;
-  border: 4px solid transparent;
-  border-radius: 8px;
-  min-height: 48px;
-}
-
-/* Po najechaniu belka się poszerza, żeby łatwiej było ją chwycić. */
-::-webkit-scrollbar-thumb:hover,
-::-webkit-scrollbar-thumb:active {
-  background-color: var(--scrollbar-thumb-hover);
-  border-width: 3px;
-}
-
-@supports not selector(::-webkit-scrollbar) {
-  * {
-    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
-    scrollbar-width: thin;
-  }
-}
-
 
 body {
   margin: 0;
@@ -192,10 +117,12 @@ h3 {
   padding: 12px 16px;
   margin-bottom: 16px;
   border-radius: var(--radius);
-  /* Spokojna rama: niebieski zostaje w logo, zaznaczeniu i głównej akcji. */
-  background: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--text);
+  /* Pasek w kolorze przycisków; logo w odwróconych barwach, żeby się nie zlewało. */
+  background: var(--titlebar-bg);
+  border: 1px solid transparent;
+  color: var(--titlebar-ink);
+  --logo-tlo: #ffffff;
+  --logo-auto: #1f5f8b;
 }
 
 .page-header__tekst {
@@ -211,7 +138,7 @@ h3 {
 }
 
 .page-header h1 {
-  color: var(--text);
+  color: var(--titlebar-ink);
   font-size: 20px;
   font-weight: 500;
   line-height: 1.2;
@@ -220,7 +147,8 @@ h3 {
 .page-header__sub {
   display: block;
   font-size: 13px;
-  color: var(--text-muted);
+  color: var(--titlebar-ink);
+  opacity: 0.8;
   margin-top: 2px;
 }
 
@@ -888,7 +816,6 @@ ul.legal {
   color: var(--text-muted);
 }
 
-
 @media print {
   body { background: #ffffff; }
 
@@ -925,7 +852,6 @@ ul.legal {
 
   .print-only { display: block; }
 }
-
 
 .export-actions {
   display: flex;

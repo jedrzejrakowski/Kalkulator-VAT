@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { calculate, podzialKosztu } from '../calculate';
+import { calculate, podzialKosztu, udzialy } from '../calculate';
 import { round2 } from '../money';
 import { DEFAULT_INPUT } from '../defaults';
 import { splitAmount } from '../vat';
@@ -373,5 +373,26 @@ describe('pasek podziału kosztu', () => {
 
   it('pomija puste części', () => {
     expect(podzialKosztu(calculate(input({ amount: 1230 }))).map((c) => c.rodzaj)).toEqual(['kup', 'nkup']);
+  });
+});
+
+describe('udziały procentowe w pasku podziału', () => {
+  const setne = (u: number[]) => u.reduce((s, x) => s + Math.round(x * 10_000), 0);
+
+  it('rata BNP w wariancie B daje razem 100%, a nie 99,99%', () => {
+    // 725,53 / 509,91 / 1 362,90 — samo zaokrąglenie dawało 27,92 + 19,62 + 52,45
+    const u = udzialy([725.53, 509.91, 1362.9]);
+    expect(setne(u)).toBe(10_000);
+    expect(u.map((x) => Math.round(x * 10_000))).toEqual([2792, 1963, 5245]);
+  });
+
+  it('zawsze sumuje się do 100%', () => {
+    for (const kwoty of [[1, 1, 1], [0.01, 0.01, 999.98], [33.33, 33.33, 33.34], [5, 7]]) {
+      expect(setne(udzialy(kwoty))).toBe(10_000);
+    }
+  });
+
+  it('pusta całość to same zera', () => {
+    expect(udzialy([0, 0])).toEqual([0, 0]);
   });
 });
