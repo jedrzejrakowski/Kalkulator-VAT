@@ -24,8 +24,11 @@
   --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --radius: 10px;
   --shadow: 0 1px 2px rgba(20, 25, 35, 0.06), 0 4px 12px rgba(20, 25, 35, 0.04);
-  --scrollbar-thumb: #8b919c;
-  --scrollbar-thumb-hover: #5f6672;
+  --scrollbar-track: #dfe3e9;
+  --scrollbar-groove-shadow: rgba(20, 25, 35, 0.22);
+  --scrollbar-groove-line: rgba(20, 25, 35, 0.06);
+  --scrollbar-thumb: #1f5f8b;
+  --scrollbar-thumb-hover: #174a6d;
   color-scheme: light;
 }
 
@@ -63,8 +66,11 @@
     --titlebar-ink: #eaf2f8;
     --titlebar-line: rgba(234, 242, 248, 0.28);
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
-    --scrollbar-thumb: #6b7483;
-    --scrollbar-thumb-hover: #98a1b0;
+    --scrollbar-track: #101318;
+    --scrollbar-groove-shadow: rgba(0, 0, 0, 0.7);
+    --scrollbar-groove-line: rgba(255, 255, 255, 0.06);
+    --scrollbar-thumb: #d4d9e1;
+    --scrollbar-thumb-hover: #ffffff;
     color-scheme: dark;
   }
 }
@@ -91,8 +97,11 @@
   --titlebar-ink: #eaf2f8;
   --titlebar-line: rgba(234, 242, 248, 0.28);
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
-  --scrollbar-thumb: #6b7483;
-  --scrollbar-thumb-hover: #98a1b0;
+  --scrollbar-track: #101318;
+  --scrollbar-groove-shadow: rgba(0, 0, 0, 0.7);
+  --scrollbar-groove-line: rgba(255, 255, 255, 0.06);
+  --scrollbar-thumb: #d4d9e1;
+  --scrollbar-thumb-hover: #ffffff;
   color-scheme: dark;
 }
 
@@ -100,30 +109,41 @@
   box-sizing: border-box;
 }
 
-/* Paski przewijania jak w programie na pulpit: zaokrąglony kciuk z marginesem,
-   bez strzałek i bez toru. Chrome i Edge przy scrollbar-color/scrollbar-width
-   tylko zwężają systemowy pasek, więc rysujemy go przez ::-webkit-scrollbar;
-   właściwości standardowe dostaje tylko przeglądarka bez tych selektorów
-   (Firefox), bo w Chromium wyłączyłyby poniższe style. */
+/* Pasek przewijania jak w programie na pulpit: wgłębiony rowek z cieniem
+   w środku i wąska, błyszcząca belka, bez strzałek. Chrome i Edge przy
+   scrollbar-color/scrollbar-width tylko zwężają systemowy pasek, więc
+   rysujemy go przez ::-webkit-scrollbar; właściwości standardowe dostaje
+   tylko przeglądarka bez tych selektorów (Firefox), bo w Chromium
+   wyłączyłyby poniższe style. */
 ::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
 }
 
-::-webkit-scrollbar-button {
-  display: none;
-}
-
-::-webkit-scrollbar-track,
+::-webkit-scrollbar-button,
 ::-webkit-scrollbar-corner {
+  display: none;
   background: transparent;
+}
+
+::-webkit-scrollbar-track {
+  margin: 4px 0;
+  background-color: var(--scrollbar-track);
+  background-clip: padding-box;
+  border: 3px solid transparent;
+  border-radius: 7px;
+  box-shadow:
+    inset 0 1px 3px var(--scrollbar-groove-shadow),
+    inset 0 0 0 1px var(--scrollbar-groove-line);
 }
 
 ::-webkit-scrollbar-thumb {
   background-color: var(--scrollbar-thumb);
+  /* Połysk: jaśniejsza lewa krawędź, jak na wypukłej belce. */
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 70%);
   background-clip: padding-box;
-  border: 3px solid transparent;
-  border-radius: 6px;
+  border: 5px solid transparent;
+  border-radius: 7px;
   min-height: 40px;
 }
 
@@ -134,10 +154,11 @@
 
 @supports not selector(::-webkit-scrollbar) {
   * {
-    scrollbar-color: var(--scrollbar-thumb) transparent;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
     scrollbar-width: thin;
   }
 }
+
 
 body {
   margin: 0;
