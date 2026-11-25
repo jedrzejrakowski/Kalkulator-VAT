@@ -1,6 +1,7 @@
 import { podzialKosztu, udzialy, type CzescKosztu } from '../domain/calculate';
 import { DOMYSLNY_PLAN_KONT, dekret, sumyDekretu, type KategoriaKosztu, type PlanKont } from '../domain/dekret';
 import { formatPln, formatRate } from '../domain/money';
+import { TYP_PDF, plikPdf } from '../domain/pdf';
 import { TYP_XLSX, plikXlsx } from '../domain/xlsx';
 import type { CalculationResult, CalculatorInput } from '../domain/types';
 
@@ -59,29 +60,28 @@ const KIND_CLASS: Record<string, string> = {
   info: '',
 };
 
-/**
- * Eksport przez okno drukowania przeglądarki — ma ono opcję „Zapisz jako PDF”,
- * więc nie potrzeba biblioteki. Podstawę prawną rozwijamy, żeby trafiła do pliku.
- */
-function exportPdf() {
-  document.querySelectorAll('details').forEach((details) => {
-    details.open = true;
-  });
-  window.print();
-}
-
-function exportXlsx(input: CalculatorInput, result: CalculationResult, plan: PlanKont) {
-  const kiedy = new Date();
-  const url = URL.createObjectURL(new Blob([plikXlsx(input, result, kiedy, plan).slice()], { type: TYP_XLSX }));
+/** Pobiera gotowy plik — ten sam sposób dla PDF i Excela. */
+function pobierz(dane: Uint8Array, typ: string, rozszerzenie: string, kiedy: Date) {
+  const url = URL.createObjectURL(new Blob([dane.slice()], { type: typ }));
   const a = document.createElement('a');
   a.href = url;
-  a.download = `rozliczenie-samochod-${kiedy.toLocaleDateString('sv-SE')}.xlsx`;
+  a.download = `rozliczenie-samochod-${kiedy.toLocaleDateString('sv-SE')}.${rozszerzenie}`;
   document.body.appendChild(a);
   a.click();
   a.remove();
   // Adres zwalniamy z opóźnieniem — część przeglądarek zaczyna pobieranie
   // dopiero po powrocie z obsługi kliknięcia.
   window.setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+function exportPdf(input: CalculatorInput, result: CalculationResult, plan: PlanKont) {
+  const kiedy = new Date();
+  pobierz(plikPdf(input, result, kiedy, plan), TYP_PDF, 'pdf', kiedy);
+}
+
+function exportXlsx(input: CalculatorInput, result: CalculationResult, plan: PlanKont) {
+  const kiedy = new Date();
+  pobierz(plikXlsx(input, result, kiedy, plan), TYP_XLSX, 'xlsx', kiedy);
 }
 
 export function ResultPanel({ input, result, plan, onPlanChange }: Props) {
@@ -391,7 +391,7 @@ export function ResultPanel({ input, result, plan, onPlanChange }: Props) {
           </details>
 
           <div className="export-actions no-print">
-            <button type="button" className="export-button export-button--primary" onClick={exportPdf}>
+            <button type="button" className="export-button export-button--primary" onClick={() => exportPdf(input, result, plan)}>
               Zapisz jako PDF
             </button>
             <button type="button" className="export-button" onClick={() => exportXlsx(input, result, plan)}>

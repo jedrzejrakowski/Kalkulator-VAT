@@ -17,8 +17,8 @@ const KODOWANIE = new TextEncoder();
 /** Style z `STYLE` — numery odpowiadają kolejności w `cellXfs`. */
 const S = { zwykly: 0, kwota: 1, procent: 2, tytul: 3, naglowek: 4, przypis: 5 } as const;
 
-type Wartosc = { kwota: number } | { procent: number } | { tekst: string };
-type Wiersz =
+export type Wartosc = { kwota: number } | { procent: number } | { tekst: string };
+export type Wiersz =
   | { rodzaj: 'tytul' | 'przypis' | 'sekcja' | 'akapit'; tekst: string }
   | { rodzaj: 'pozycja'; tekst: string; wartosc: Wartosc; uwaga?: string };
 
