@@ -1363,6 +1363,10 @@ details.legal-box[open] > summary::before {
 }
 
 @media (max-width: 1023px) {
+  .topbar {
+    position: static;
+  }
+
   .page {
     padding: 16px 16px 96px;
   }
@@ -1391,7 +1395,7 @@ details.legal-box[open] > summary::before {
   .mobile-summary__figures {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px 8px;
+    gap: 2px 12px;
     font-size: 0.78125rem;
     color: var(--text-muted);
   }

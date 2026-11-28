@@ -655,11 +655,9 @@ export function ResultPanel({ input, result, plan, onPlanChange }: Props) {
             <span>
               VAT: <strong>{formatPln(vat.deductible)}</strong>
             </span>
-            <span>•</span>
             <span>
               KUP: <strong>{formatPln(kupDisplay)}</strong>
             </span>
-            <span>•</span>
             <span>
               NKUP: <strong>{formatPln(nkupDisplay)}</strong>
             </span>
