@@ -5,92 +5,86 @@ html {
 
 :root {
   --skala: 1;
-  /* Napis na wypełnieniu w kolorze wiodącym; w motywie ciemnym kolor wiodący
-     jaśnieje, więc napis musi być ciemny. */
   --accent-ink: #ffffff;
-  --bg: #f4f5f7;
+  --bg: #f4f6fa;
   --surface: #ffffff;
-  --surface-alt: #f8f9fb;
-  --border: #dfe2e8;
-  --border-strong: #c6cbd4;
-  --text: #1b1f27;
-  --text-muted: #49505e;
+  --surface-alt: #f8fafc;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --text: #161b26;
+  --text-muted: #526075;
   --accent: #1f5f8b;
   --accent-soft: #e7f0f7;
-  --kup: #1f6f43;
-  --kup-soft: #e4f2ea;
-  --nkup: #9a4a17;
-  --nkup-soft: #fbeee4;
+  --kup: #167a48;
+  --kup-soft: #e6f6ed;
+  --nkup: #a84e14;
+  --nkup-soft: #fdf0e6;
   --statutory: #5a4a94;
-  --statutory-soft: #eeebf8;
-  --warn-bg: #fdf6e3;
-  --warn-border: #e8d8a8;
+  --statutory-soft: #efecf9;
+  --warn-bg: #fef8e7;
+  --warn-border: #ead496;
   --titlebar-bg: #1f5f8b;
   --titlebar-ink: #ffffff;
   --titlebar-line: rgba(255, 255, 255, 0.32);
   --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
     Roboto, Helvetica, Arial, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --radius: 10px;
-  --shadow: 0 1px 2px rgba(20, 25, 35, 0.06), 0 4px 12px rgba(20, 25, 35, 0.04);
+  --radius: 14px;
+  --shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 6px 18px rgba(15, 23, 42, 0.04);
   color-scheme: light;
 }
 
-/* Motyw ciemny musi zadziałać w trzech stanach: bez atrybutu na <html> decyduje
-   preferencja systemu, a jawny wybór czytelnika stemplowany jako data-theme
-   wygrywa w obie strony. Tokeny są więc definiowane pod oboma selektorami.
-   Tylko na ekranie — PDF i wydruk zawsze idą w jasnych kolorach. */
 @media screen and (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --bg: #14171d;
+    --bg: #0f141c;
     --surface: #1c2027;
-    --surface-alt: #22262f;
-    --border: #303743;
-    --border-strong: #414a59;
-    --text: #e7eaef;
-    --text-muted: #a7b0bf;
+    --surface-alt: #232833;
+    --border: #2c3442;
+    --border-strong: #3e495c;
+    --text: #edf1f7;
+    --text-muted: #a3b0c4;
     --accent: #6fb3e0;
     --accent-soft: #1b2b38;
     --kup: #6cc294;
-    --kup-soft: #1a2c23;
+    --kup-soft: #182b22;
     --nkup: #e2a274;
-    --nkup-soft: #2e231a;
+    --nkup-soft: #2e2219;
     --statutory: #a99adf;
-    --statutory-soft: #24203a;
-    --warn-bg: #2a2517;
-    --warn-border: #4a4128;
+    --statutory-soft: #25203a;
+    --warn-bg: #292316;
+    --warn-border: #4e4226;
     --titlebar-bg: #163b52;
     --titlebar-ink: #eaf2f8;
     --titlebar-line: rgba(234, 242, 248, 0.28);
     --accent-ink: #0f1319;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
+    --shadow: 0 2px 6px rgba(0, 0, 0, 0.35), 0 10px 24px rgba(0, 0, 0, 0.22);
     color-scheme: dark;
   }
 }
 
 :root[data-theme='dark'] {
-  --bg: #14171d;
+  --bg: #0f141c;
   --surface: #1c2027;
-  --surface-alt: #22262f;
-  --border: #303743;
-  --border-strong: #414a59;
-  --text: #e7eaef;
-  --text-muted: #a7b0bf;
+  --surface-alt: #232833;
+  --border: #2c3442;
+  --border-strong: #3e495c;
+  --text: #edf1f7;
+  --text-muted: #a3b0c4;
   --accent: #6fb3e0;
   --accent-soft: #1b2b38;
   --kup: #6cc294;
-  --kup-soft: #1a2c23;
+  --kup-soft: #182b22;
   --nkup: #e2a274;
-  --nkup-soft: #2e231a;
+  --nkup-soft: #2e2219;
   --statutory: #a99adf;
-  --statutory-soft: #24203a;
-  --warn-bg: #2a2517;
-  --warn-border: #4a4128;
+  --statutory-soft: #25203a;
+  --warn-bg: #292316;
+  --warn-border: #4e4226;
   --titlebar-bg: #163b52;
   --titlebar-ink: #eaf2f8;
   --titlebar-line: rgba(234, 242, 248, 0.28);
   --accent-ink: #0f1319;
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
+  --shadow: 0 2px 6px rgba(0, 0, 0, 0.35), 0 10px 24px rgba(0, 0, 0, 0.22);
   color-scheme: dark;
 }
 
@@ -112,235 +106,237 @@ h1,
 h2,
 h3 {
   margin: 0;
-  font-weight: 500;
+  font-weight: 600;
 }
 
-.page {
-  max-width: 1180px;
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Lekki, nowoczesny pasek górny --- */
+
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 15;
+}
+
+.topbar__inner {
+  max-width: 1380px;
   margin: 0 auto;
-  padding: 32px 20px 72px;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-.page-header {
+.topbar__brand {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 16px;
-  margin-bottom: 16px;
-  border-radius: var(--radius);
-  /* Pasek w kolorze przycisków; logo w odwróconych barwach, żeby się nie zlewało. */
-  background: var(--titlebar-bg);
-  border: 1px solid transparent;
-  color: var(--titlebar-ink);
-  --logo-tlo: #ffffff;
-  --logo-auto: var(--titlebar-bg);
-}
-
-.page-header__tekst {
-  display: flex;
-  flex-direction: column;
   min-width: 0;
+  --logo-tlo: var(--accent);
+  --logo-auto: var(--accent-ink);
 }
 
-.page-header__mark {
+.topbar__mark {
   display: block;
   flex: none;
   border-radius: 10px;
 }
 
-.page-header h1 {
-  color: var(--titlebar-ink);
-  font-size: 1.25rem;
-  font-weight: 500;
-  line-height: 1.2;
+.topbar__titles {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
-.page-header__sub {
-  display: block;
+.topbar__title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.topbar__titles h1 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--text);
+}
+
+.topbar__badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 2px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.topbar__sub {
   font-size: 0.8125rem;
-  color: var(--titlebar-ink);
-  opacity: 0.8;
+  color: var(--text-muted);
   margin-top: 2px;
 }
 
-.layout {
+.topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+.action-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 12px;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text);
+  background: var(--surface-alt);
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s, opacity 0.15s;
+}
+
+.action-chip--accent {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.action-chip--icon {
+  width: 36px;
+  padding: 0;
+}
+
+.action-chip:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.action-chip:disabled {
+  opacity: 0.45;
+  cursor: default;
+  color: var(--text-muted);
+  border-color: var(--border);
+  background: var(--surface-alt);
+}
+
+.action-chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* --- Główny obszar 2-kolumnowy --- */
+
+.page {
+  width: 100%;
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 24px 24px 72px;
+}
+
+.workspace {
   display: grid;
-  gap: 20px;
+  gap: 24px;
   grid-template-columns: minmax(0, 1fr);
   align-items: start;
 }
 
-/* Średnie ekrany: dane po lewej, wynik i księgowanie jedno pod drugim po prawej. */
-@media (min-width: 960px) {
-  .layout {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+@media (min-width: 1024px) {
+  .workspace {
+    grid-template-columns: minmax(0, 44fr) minmax(0, 56fr);
   }
 
-  .layout > :first-child {
-    grid-row: span 2;
-  }
-
-}
-
-/* Szerokie ekrany: trzy kolumny — dane, wynik, księgowanie. */
-@media (min-width: 1360px) {
-  .page {
-    max-width: 1680px;
-  }
-
-  .layout {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .layout > :first-child {
-    grid-row: auto;
-  }
-
-  /* Równe kolumny: każda rozciąga się do najdłuższej, a jej ostatnia karta
-     wypełnia resztę, więc wszystkie trzy kończą się na jednej linii. */
-  .layout {
-    align-items: stretch;
-  }
-
-  .layout > * {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .layout > * > .card:last-child {
-    flex: 1;
-  }
-
-  .results-dekret > .card:last-child {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .results-dekret .export-actions {
-    margin-top: auto;
-    padding-top: 16px;
-  }
-}
-
-/* Okno aplikacji: na dużym ekranie trzy panele na całą wysokość okna,
-   każdy przewijany osobno, bez osobnych kart — sekcje dzieli cienka linia. */
-@media screen and (min-width: 1360px) and (min-height: 680px) {
-  html,
-  body,
-  #root {
-    height: 100%;
-  }
-
-  body {
-    overflow: hidden;
-  }
-
-  .page {
-    max-width: none;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    padding: 0;
-  }
-
-  .page-header {
-    flex: none;
-    margin: 0;
-    padding: 12px 24px;
-    border-width: 0 0 1px;
-    border-radius: 0;
-  }
-
-  .layout {
-    flex: 1;
-    min-height: 0;
-    gap: 0;
-  }
-
-  .layout > * {
-    min-height: 0;
-    overflow-y: auto;
-    padding: 0 24px;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    scrollbar-gutter: stable;
-  }
-
-  .layout > :last-child {
-    border-right: 0;
-  }
-
-  .layout .card {
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
-    background: transparent;
-    padding: 20px 0;
-    margin: 0;
-  }
-
-  .layout .card + .card {
-    border-top: 1px solid var(--border);
-    margin-top: 0;
-  }
-
-  .results-dekret .export-actions {
+  .results-column {
     position: sticky;
-    bottom: 0;
-    margin-top: auto;
-    padding: 12px 0 16px;
-    background: var(--surface);
-    border-top: 1px solid var(--border);
+    top: 84px;
   }
 }
 
-@media screen and (min-width: 1360px) and (min-height: 680px) and (display-mode: window-controls-overlay) {
-  .page {
-    padding-top: env(titlebar-area-height, 38px);
-  }
+.form-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
+
+/* --- Karty --- */
 
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 20px;
+  padding: 22px;
 }
 
-.card + .card {
-  margin-top: 20px;
+.card__head {
+  margin-bottom: 18px;
 }
 
-.card > h2 {
-  font-size: 1rem;
-  color: var(--text);
+.card__step {
+  display: inline-block;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
   margin-bottom: 4px;
 }
 
+.card h2 {
+  font-size: 1.0625rem;
+  color: var(--text);
+}
+
 .card-hint {
-  margin: 0 0 16px;
+  margin: 4px 0 0;
   color: var(--text-muted);
   font-size: 0.8125rem;
 }
 
+/* --- Pola formularza --- */
+
 .field {
   display: block;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .card > .field:last-child,
-.card > .stack:last-child > .field:last-child {
+.vehicle-section > .field:last-child {
   margin-bottom: 0;
 }
 
-.stack {
-  margin-top: 16px;
+.field-row-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.field-row-head .field-label {
+  margin-bottom: 0;
 }
 
 .field-label {
   display: block;
-  font-size: 0.875rem;
+  font-size: 0.84375rem;
   font-weight: 500;
   color: var(--text);
   margin-bottom: 8px;
@@ -348,12 +344,11 @@ h3 {
 
 .field-hint {
   display: block;
-  font-size: 0.8125rem;
+  font-size: 0.78125rem;
   color: var(--text-muted);
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
-/* Komunikat o zaokrągleniu wskaźnika musi być widoczny — zmienia wynik. */
 .field-hint-active {
   color: var(--accent);
   font-weight: 500;
@@ -362,14 +357,14 @@ h3 {
 input[type='text'],
 select {
   width: 100%;
-  height: 40px;
+  height: 42px;
   padding: 0 12px;
   font: inherit;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   color: var(--text);
   background: var(--surface-alt);
   border: 1px solid var(--border-strong);
-  border-radius: 8px;
+  border-radius: 9px;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
@@ -380,8 +375,21 @@ select:focus {
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
+.amount-hero input[type='text'] {
+  height: 48px;
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.amount-hero .field {
+  margin-bottom: 0;
+}
+
 .input-suffix {
   position: relative;
+  display: block;
 }
 
 .input-suffix input {
@@ -400,8 +408,14 @@ select:focus {
 
 .grid-2 {
   display: grid;
-  gap: 16px;
+  gap: 14px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid-3 {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
 }
 
 @media (max-width: 520px) {
@@ -410,105 +424,502 @@ select:focus {
   }
 }
 
-.choice-group {
-  display: grid;
-  gap: 8px;
-}
-
-.choice {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  padding: 12px;
-  border: 1px solid var(--border-strong);
-  border-radius: 8px;
+.ngo-box {
+  margin: 0 0 18px;
+  padding: 14px;
+  border-radius: 10px;
   background: var(--surface-alt);
-  cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
+  border: 1px solid var(--border);
 }
 
-.choice:hover {
-  border-color: var(--accent);
+.ngo-box > .field:last-child {
+  margin-bottom: 0;
 }
 
-.choice input {
-  margin: 3px 0 0;
-  accent-color: var(--accent);
-}
-
-.choice-selected {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-}
-
-.choice > span {
-  display: block;
-  min-width: 0;
-}
-
-.choice-title {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.choice-desc {
-  display: block;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-top: 4px;
-}
+/* --- Przełączniki segmentowe --- */
 
 .segmented {
   display: inline-flex;
-  border: 1px solid var(--border-strong);
-  border-radius: 8px;
-  overflow: hidden;
+  padding: 3px;
+  gap: 3px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
   background: var(--surface-alt);
+}
+
+.segmented--compact button {
+  padding: 5px 12px;
+  font-size: 0.78125rem;
 }
 
 .segmented button {
   font: inherit;
   font-size: 0.8125rem;
-  padding: 8px 16px;
+  padding: 7px 14px;
   border: 0;
+  border-radius: 7px;
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-
-.segmented button + button {
-  border-left: 1px solid var(--border-strong);
+  transition: background-color 0.15s, color 0.15s;
 }
 
 .segmented button[aria-pressed='true'] {
   background: var(--accent);
   color: var(--accent-ink);
-  font-weight: 500;
+  font-weight: 600;
 }
 
-.headline {
+.segmented-pelny {
+  display: flex;
+  width: 100%;
+}
+
+.segmented-pelny button {
+  flex: 1;
+  padding: 8px 10px;
+}
+
+/* --- Kafelki wyboru kategorii wydatku --- */
+
+.category-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(108px, 1fr));
+}
+
+.category-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 8px;
+  font: inherit;
+  font-size: 0.78125rem;
+  font-weight: 500;
+  line-height: 1.25;
+  text-align: center;
+  color: var(--text);
+  background: var(--surface-alt);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s, transform 0.1s;
+}
+
+.category-tile:hover {
+  border-color: var(--accent);
+}
+
+.category-tile--active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.category-tile__icon {
+  display: grid;
+  place-items: center;
+}
+
+/* --- Pigułki VAT --- */
+
+.vat-pills {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  gap: 12px;
-  padding-bottom: 16px;
-  margin-bottom: 16px;
-  border-bottom: 1px solid var(--border);
+  gap: 8px;
 }
 
-.headline-value {
+.vat-pill {
+  min-width: 64px;
+  height: 36px;
+  padding: 0 14px;
+  font: inherit;
   font-family: var(--font-mono);
-  font-size: 2rem;
+  font-size: 0.84375rem;
   font-weight: 500;
-  color: var(--accent);
-  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  background: var(--surface-alt);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
 }
 
-.headline-label {
+.vat-pill:hover {
+  border-color: var(--accent);
+}
+
+.vat-pill--active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+/* --- Sekcja pojazdu i kafelki napędu --- */
+
+.vehicle-section {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.vehicle-section__head h3 {
+  font-size: 0.9375rem;
+  margin-bottom: 12px;
+}
+
+.powertrain-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 560px) {
+  .powertrain-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.powertrain-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 12px;
+  text-align: left;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface-alt);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.powertrain-card:hover {
+  border-color: var(--accent);
+}
+
+.powertrain-card--active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.powertrain-card__name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.powertrain-card__sub {
+  font-size: 0.71875rem;
+  color: var(--text-muted);
+}
+
+.powertrain-card__limit {
+  margin-top: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.opcja-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84375rem;
+  margin: 6px 0 12px;
+  cursor: pointer;
+}
+
+.opcja-inline input {
+  accent-color: var(--accent);
+}
+
+.info-banner {
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
   font-size: 0.8125rem;
   color: var(--text-muted);
+}
+
+/* --- Prawa kolumna: Wyniki i KPI --- */
+
+.results-card__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.gross-badge {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.kpi-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 18px;
+}
+
+.kpi-grid--4 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 1260px) {
+  .kpi-grid--4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .kpi-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.kpi-card {
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+}
+
+.kpi-card--vat {
+  background: var(--accent-soft);
+  border-color: transparent;
+}
+
+.kpi-card--kup {
+  background: var(--kup-soft);
+  border-color: transparent;
+}
+
+.kpi-card--nkup {
+  background: var(--nkup-soft);
+  border-color: transparent;
+}
+
+.kpi-card--statutory {
+  background: var(--statutory-soft);
+  border-color: transparent;
+}
+
+.kpi-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.kpi-card__label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.kpi-card__pill {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--accent);
+}
+
+.kpi-card__value {
+  font-family: var(--font-mono);
+  font-size: 1.375rem;
+  font-weight: 600;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.kpi-card--vat .kpi-card__value { color: var(--accent); }
+.kpi-card--kup .kpi-card__value { color: var(--kup); }
+.kpi-card--nkup .kpi-card__value { color: var(--nkup); }
+.kpi-card--statutory .kpi-card__value { color: var(--statutory); }
+
+.kpi-card__sub {
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* --- Pasek podziału brutto --- */
+
+.split {
+  padding: 14px 16px;
+  margin-bottom: 18px;
+  border-radius: 11px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+}
+
+.split__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+  font-size: 0.78125rem;
+}
+
+.split__title {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.split__total {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.split__bar {
+  display: flex;
+  gap: 2px;
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.split__part {
+  flex-basis: 0;
+  min-width: 3px;
+}
+
+.split__part--vat { background: var(--accent); }
+.split__part--kup { background: var(--kup); }
+.split__part--nkup { background: var(--nkup); }
+.split__part--statutory { background: var(--statutory); }
+
+.split__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.78125rem;
+  color: var(--text-muted);
+}
+
+.split__legend li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.split__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex: none;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.split__value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* --- Zakładki --- */
+
+.tabs-nav {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+  overflow-x: auto;
+}
+
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  font: inherit;
+  font-size: 0.84375rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.tab-btn:hover {
+  color: var(--text);
+}
+
+.tab-btn--active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+
+.tab-badge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
+  color: var(--nkup);
+}
+
+@media screen {
+  .tab-panel--hidden {
+    display: none;
+  }
+
+  .print-section-title {
+    display: none;
+  }
+}
+
+/* --- Tabele liczbowe i dekret --- */
+
+.subhead {
+  font-size: 0.84375rem;
+  color: var(--text);
+  margin: 20px 0 8px;
+  font-weight: 600;
+}
+
+.tab-panel > .subhead:first-child {
+  margin-top: 0;
 }
 
 table.figures {
@@ -520,7 +931,7 @@ table.figures {
 table.figures th,
 table.figures td {
   text-align: left;
-  padding: 8px 0;
+  padding: 9px 0;
   font-size: 0.875rem;
   font-weight: 400;
   border-bottom: 1px solid var(--border);
@@ -538,55 +949,6 @@ table.figures td {
   font-weight: 500;
   font-size: 0.875rem;
   color: var(--text);
-}
-
-table.dekret thead th {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  padding-top: 0;
-}
-
-table.dekret thead th:last-child {
-  text-align: right;
-}
-
-.dekret-konta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2px 12px;
-  font-family: var(--font-mono);
-  font-weight: 500;
-}
-
-table.dekret tr.dekret-490 th,
-table.dekret tr.dekret-490 td {
-  background: var(--surface-alt);
-}
-
-table.dekret tr.dekret-490 th {
-  padding-left: 8px;
-}
-
-table.dekret tr.dekret-490 td {
-  padding-right: 8px;
-}
-
-.plan-kont__pola {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
-  gap: 0 12px;
-  margin-top: 12px;
-}
-
-.link-button {
-  background: none;
-  border: 0;
-  padding: 0;
-  font: inherit;
-  font-size: 0.8125rem;
-  color: var(--accent);
-  text-decoration: underline;
-  cursor: pointer;
 }
 
 table.figures .row-note {
@@ -614,81 +976,159 @@ table.figures .row-note {
 
 .row-total th,
 .row-total td {
-  font-weight: 500;
+  font-weight: 600;
   border-top: 1px solid var(--border-strong);
 }
 
-/* Pasek podziału kosztu: koszt podatkowy, wyłączenia i część statutowa. */
-.split {
-  padding: 8px 0 16px;
-  margin-bottom: 8px;
-  border-bottom: 1px solid var(--border);
+table.dekret thead th {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  padding-top: 0;
 }
 
-.split__bar {
-  display: flex;
-  gap: 2px;
-  height: 8px;
-  border-radius: 4px;
-  overflow: hidden;
-  print-color-adjust: exact;
-  -webkit-print-color-adjust: exact;
+table.dekret thead th:last-child {
+  text-align: right;
 }
 
-.split__part {
-  flex-basis: 0;
-  min-width: 2px;
-}
-
-.split__part--kup { background: var(--kup); }
-.split__part--nkup { background: var(--nkup); }
-.split__part--statutory { background: var(--statutory); }
-
-.split__legend {
+.dekret-konta {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 20px;
-  margin: 12px 0 0;
+  gap: 4px 8px;
+  font-family: var(--font-mono);
+}
+
+.konto-pill {
+  display: inline-block;
+  font-size: 0.78125rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-alt);
+}
+
+.konto-pill--wn {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: transparent;
+}
+
+.konto-pill--ma {
+  color: var(--nkup);
+  background: var(--nkup-soft);
+  border-color: transparent;
+}
+
+table.dekret tr.dekret-490 th,
+table.dekret tr.dekret-490 td {
+  background: var(--surface-alt);
+}
+
+table.dekret tr.dekret-490 th {
+  padding-left: 8px;
+}
+
+table.dekret tr.dekret-490 td {
+  padding-right: 8px;
+}
+
+.dekret-check-row {
+  margin-top: 12px;
+}
+
+.dekret-check {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.78125rem;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 999px;
+}
+
+.dekret-check--ok {
+  background: var(--kup-soft);
+  color: var(--kup);
+}
+
+.dekret-check--err {
+  background: var(--nkup-soft);
+  color: var(--nkup);
+}
+
+.plan-kont__pola {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  gap: 0 12px;
+  margin-top: 12px;
+}
+
+.link-button {
+  background: none;
+  border: 0;
   padding: 0;
-  list-style: none;
+  font: inherit;
   font-size: 0.8125rem;
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* --- Karta limitu pojazdu --- */
+
+.limit-card {
+  margin-top: 18px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+}
+
+.limit-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.8125rem;
+  margin-bottom: 8px;
+}
+
+.limit-card__top strong {
+  font-family: var(--font-mono);
+  color: var(--accent);
+}
+
+.limit-card__bar {
+  height: 7px;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.limit-card__bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.limit-card__meta {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: 0.75rem;
   color: var(--text-muted);
 }
 
-.split__legend li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.split__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 2px;
-  flex: none;
-  print-color-adjust: exact;
-  -webkit-print-color-adjust: exact;
-}
-
-.split__value {
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
-  color: var(--text);
-}
-
-.subhead {
-  font-size: 0.875rem;
-  color: var(--text);
-  margin: 24px 0 8px;
-  font-weight: 500;
-}
+/* --- Kroki, uwagi, prawo --- */
 
 .steps {
   margin: 0;
   padding: 0;
   list-style: none;
   display: grid;
-  gap: 4px;
+  gap: 6px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -699,9 +1139,9 @@ table.figures .row-note {
   justify-content: space-between;
   gap: 4px 16px;
   font-size: 0.8125rem;
-  padding: 8px 12px;
+  padding: 9px 12px;
   background: var(--surface-alt);
-  border-radius: 8px;
+  border-radius: 9px;
   border: 1px solid var(--border);
 }
 
@@ -721,10 +1161,6 @@ ul.notes {
   font-size: 0.875rem;
 }
 
-ul.notes li {
-  padding-left: 2px;
-}
-
 ul.legal {
   margin: 0;
   padding-left: 18px;
@@ -734,34 +1170,254 @@ ul.legal {
   color: var(--text-muted);
 }
 
+.warnings-stack {
+  margin-bottom: 16px;
+}
+
 .warning {
   background: var(--warn-bg);
   border: 1px solid var(--warn-border);
-  border-radius: 8px;
-  padding: 12px;
+  border-radius: 9px;
+  padding: 11px 12px;
   font-size: 0.8125rem;
-  margin-bottom: 12px;
+  margin: 0 0 8px;
 }
 
-.warning:last-of-type {
+.warning:last-child {
   margin-bottom: 0;
 }
 
-.empty {
-  color: var(--text-muted);
-  font-size: 0.875rem;
-  padding: 20px 0;
-  text-align: center;
-}
-
-.disclaimer {
-  margin-top: 24px;
+.inline-warning-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
   font-size: 0.8125rem;
-  color: var(--text-muted);
-  max-width: 78ch;
 }
 
-/* --- pasek tytułu zainstalowanej aplikacji --- */
+/* --- Empty states --- */
+
+.empty-state {
+  padding: 36px 20px;
+  text-align: center;
+  border: 1px dashed var(--border-strong);
+  border-radius: 12px;
+  background: var(--surface-alt);
+}
+
+.empty-state__preview {
+  display: inline-flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.empty-state__chip {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  color: var(--text-muted);
+}
+
+.empty-state h3 {
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+
+.empty-state p {
+  margin: 0 auto;
+  max-width: 46ch;
+  font-size: 0.84375rem;
+  color: var(--text-muted);
+}
+
+.empty-box {
+  padding: 16px;
+  border-radius: 10px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  font-size: 0.875rem;
+}
+
+.empty-box p {
+  margin: 6px 0 0;
+  color: var(--text-muted);
+}
+
+/* --- Akcje eksportu --- */
+
+.export-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.export-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font: inherit;
+  font-size: 0.84375rem;
+  font-weight: 500;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  height: 38px;
+  padding: 0 15px;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, transform 0.1s;
+}
+
+.export-button:hover {
+  background: var(--surface-alt);
+  border-color: var(--accent);
+}
+
+.export-button:active {
+  transform: scale(0.98);
+}
+
+.export-button--primary {
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.export-button--primary:hover {
+  background: var(--accent);
+  opacity: 0.92;
+}
+
+.export-button--ghost {
+  margin-left: auto;
+}
+
+@media (max-width: 560px) {
+  .export-button--ghost {
+    margin-left: 0;
+  }
+}
+
+.export-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* --- Zwijany plan kont --- */
+
+details.legal-box {
+  margin-top: 18px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+details.legal-box > summary {
+  cursor: pointer;
+  font-size: 0.84375rem;
+  color: var(--accent);
+  font-weight: 500;
+  list-style: none;
+}
+
+details.legal-box > summary::-webkit-details-marker {
+  display: none;
+}
+
+details.legal-box > summary::before {
+  content: '▸';
+  display: inline-block;
+  margin-right: 6px;
+  transition: transform 0.15s;
+}
+
+details.legal-box[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.legal-box__note {
+  margin: 16px 0 0;
+  font-size: 0.78125rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+/* --- Przypięty pasek podsumowania na telefonach --- */
+
+.mobile-summary {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .page {
+    padding: 16px 16px 96px;
+  }
+
+  .topbar__inner {
+    padding: 10px 16px;
+    flex-wrap: wrap;
+  }
+
+  .mobile-summary {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 16px;
+    background: var(--surface);
+    border-top: 1px solid var(--border-strong);
+    box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.08);
+  }
+
+  .mobile-summary__figures {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    font-size: 0.78125rem;
+    color: var(--text-muted);
+  }
+
+  .mobile-summary__figures strong {
+    font-family: var(--font-mono);
+    color: var(--text);
+  }
+
+  .mobile-summary__btn {
+    flex: none;
+    height: 36px;
+    padding: 0 14px;
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    border: 0;
+    border-radius: 9px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+}
+
+/* --- Pasek tytułu zainstalowanej aplikacji PWA --- */
 
 .app-titlebar {
   display: none;
@@ -769,8 +1425,6 @@ ul.legal {
   --logo-auto: var(--titlebar-bg);
 }
 
-/* Tryb włącza się dopiero wtedy, gdy system odda aplikacji obszar paska.
-   W karcie przeglądarki nagłówek pozostaje ukryty. */
 @media (display-mode: window-controls-overlay) {
   .app-titlebar {
     position: fixed;
@@ -784,7 +1438,7 @@ ul.legal {
     padding: 0 12px;
     background: var(--titlebar-bg);
     color: var(--titlebar-ink);
-    z-index: 20;
+    z-index: 25;
     -webkit-app-region: drag;
     app-region: drag;
   }
@@ -812,185 +1466,34 @@ ul.legal {
     app-region: no-drag;
   }
 
-  .app-titlebar__action:hover { background: var(--titlebar-line); }
-  .app-titlebar__action:focus-visible { outline: 2px solid var(--titlebar-ink); outline-offset: 1px; }
-
-  .page { padding-top: calc(env(titlebar-area-height, 38px) + 24px); }
-}
-
-/* --- wydruk dekretu --- */
-.print-only { display: none; }
-
-.page-header__date {
-  margin: 0 0 0 auto;
-  font-size: 0.8125rem;
-  color: var(--text-muted);
-}
-
-@media print {
-  body { background: #ffffff; }
-
-  .page-header {
-    background: none;
-    color: #1a1f27;
-    padding: 0 0 12px;
-    border: 0;
-    border-bottom: 1px solid #cfd4dc;
-    border-radius: 0;
-    --logo-tlo: var(--accent-druk, #1f5f8b);
-    --logo-auto: #ffffff;
+  .app-titlebar__action:hover {
+    background: var(--titlebar-line);
   }
 
-  .page-header h1,
-  .page-header__sub { color: #1a1f27; }
-
-  .app-titlebar { display: none; }
-
-  .page { max-width: none; padding: 0; }
-
-  .layout { display: block; }
-
-  .card {
-    box-shadow: none;
-    border-color: #cfd4dc;
-    break-inside: avoid;
-    margin-bottom: 12px;
+  .topbar {
+    top: env(titlebar-area-height, 38px);
   }
 
-  .results { position: static; }
-
-  .no-print { display: none; }
-
-  .print-only { display: block; }
+  .app-shell {
+    padding-top: env(titlebar-area-height, 38px);
+  }
 }
 
-.export-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 16px;
-}
-
-.export-button {
-  font: inherit;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--text);
-  background: var(--surface);
-  border: 1px solid var(--border-strong);
-  border-radius: 8px;
-  height: 36px;
-  padding: 0 16px;
-  cursor: pointer;
-  transition: background-color 0.15s, border-color 0.15s;
-}
-
-.export-button:hover { background: var(--surface-alt); }
-.export-button:active { transform: scale(0.98); }
-
-.export-button--primary {
-  color: var(--accent-ink);
-  background: var(--accent);
-  border-color: var(--accent);
-}
-
-.export-button--primary:hover { background: var(--accent); opacity: 0.9; }
-.export-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-
-/* --- podstawa prawna jako zwijana --- */
-
-details.legal-box {
-  margin-top: 20px;
-  border-top: 1px solid var(--border);
-  padding-top: 12px;
-}
-
-details.legal-box > summary {
-  cursor: pointer;
-  font-size: 0.875rem;
-  color: var(--text);
-  font-weight: 500;
-  list-style: none;
-}
-
-details.legal-box > summary::-webkit-details-marker { display: none; }
-
-details.legal-box > summary::before {
-  content: '▸';
-  display: inline-block;
-  margin-right: 8px;
-  color: var(--text-muted);
-  transition: transform 0.15s;
-}
-
-details.legal-box[open] > summary::before { transform: rotate(90deg); }
-
-details.legal-box > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-
-details.legal-box ul.legal { margin-top: 10px; }
-
-.legal-box__note {
-  margin: 12px 0 0;
-  font-size: 0.8125rem;
-  line-height: 1.55;
-  color: var(--text-muted);
-  padding-top: 12px;
-  border-top: 1px solid var(--border);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  details.legal-box > summary::before { transition: none; }
-}
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-.segmented-pelny { display: flex; width: 100%; }
-.segmented-pelny button { flex: 1; padding: 8px 10px; }
-.grid-3 { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
-.opcja-inline { display: flex; align-items: center; gap: 8px; font-size: 0.875rem; margin: 4px 0 16px; cursor: pointer; }
-
-/* --- ustawienia wyglądu --- */
-
-/* Trybik siedzi w niebieskim pasku, więc nosi jego barwy zamiast barw kart. */
-.zebatka {
-  margin-left: auto;
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 9px;
-  border: 1px solid var(--titlebar-line);
-  background: transparent;
-  color: var(--titlebar-ink);
-  cursor: pointer;
-  transition: background-color 0.15s;
-}
-
-.zebatka:hover { background: var(--titlebar-line); }
-.zebatka:focus-visible { outline: 2px solid var(--titlebar-ink); outline-offset: 2px; }
+/* --- Panel ustawień wyglądu --- */
 
 dialog.ustawienia {
   width: min(440px, calc(100vw - 32px));
   padding: 0;
   border: 1px solid var(--border-strong);
-  border-radius: 12px;
+  border-radius: 14px;
   background: var(--surface);
   color: var(--text);
   box-shadow: 0 12px 48px rgba(15, 20, 30, 0.24);
 }
 
-dialog.ustawienia::backdrop { background: rgba(12, 16, 22, 0.45); }
+dialog.ustawienia::backdrop {
+  background: rgba(12, 16, 22, 0.45);
+}
 
 .ustawienia__belka {
   display: flex;
@@ -1002,7 +1505,7 @@ dialog.ustawienia::backdrop { background: rgba(12, 16, 22, 0.45); }
 
 .ustawienia__belka h2 {
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   margin: 0;
 }
 
@@ -1018,8 +1521,10 @@ dialog.ustawienia::backdrop { background: rgba(12, 16, 22, 0.45); }
   cursor: pointer;
 }
 
-.ustawienia__zamknij:hover { background: var(--surface-alt); color: var(--text); }
-.ustawienia__zamknij:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ustawienia__zamknij:hover {
+  background: var(--surface-alt);
+  color: var(--text);
+}
 
 .ustawienia__tresc {
   padding: 18px;
@@ -1031,13 +1536,19 @@ dialog.ustawienia::backdrop { background: rgba(12, 16, 22, 0.45); }
 
 .ustawienia__tresc h3 {
   font-size: 0.84375rem;
-  font-weight: 500;
+  font-weight: 600;
   margin: 0 0 8px;
 }
 
-.swatche, .kroje { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.swatche,
+.kroje {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
 
-.swatch, .krój {
+.swatch,
+.krój {
   display: flex;
   align-items: center;
   gap: 9px;
@@ -1046,19 +1557,22 @@ dialog.ustawienia::backdrop { background: rgba(12, 16, 22, 0.45); }
   text-align: left;
   padding: 9px 11px;
   border: 1px solid var(--border-strong);
-  border-radius: 8px;
+  border-radius: 9px;
   background: var(--surface-alt);
   color: var(--text);
   cursor: pointer;
 }
 
-.swatch:hover, .krój:hover { border-color: var(--accent); }
-.swatch:focus-visible, .krój:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.swatch:hover,
+.krój:hover {
+  border-color: var(--accent);
+}
 
-.swatch--on, .krój--on {
+.swatch--on,
+.krój--on {
   border-color: var(--accent);
   background: var(--accent-soft);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .swatch__plama {
@@ -1080,9 +1594,74 @@ dialog.ustawienia::backdrop { background: rgba(12, 16, 22, 0.45); }
   background: var(--surface-alt);
 }
 
+/* --- Wydruk dekretu --- */
+
+.print-only {
+  display: none;
+}
+
+.topbar__date {
+  margin: 0 0 0 auto;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
 
 @media print {
-  /* Wydruk zawsze w jasnych barwach wybranej palety, także gdy na ekranie jest motyw ciemny. */
-  html { --accent: var(--accent-druk, #1f5f8b) !important; --accent-ink: #ffffff !important; }
-  .zebatka, dialog.ustawienia { display: none; }
+  html {
+    --accent: var(--accent-druk, #1f5f8b) !important;
+    --accent-ink: #ffffff !important;
+  }
+
+  body {
+    background: #ffffff;
+  }
+
+  .topbar {
+    position: static;
+    border-bottom: 1px solid #cfd4dc;
+  }
+
+  .topbar__inner {
+    padding: 0 0 12px;
+  }
+
+  .app-titlebar,
+  .no-print,
+  dialog.ustawienia {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block;
+  }
+
+  .page {
+    max-width: none;
+    padding: 12px 0 0;
+  }
+
+  .workspace {
+    display: block;
+  }
+
+  .card {
+    box-shadow: none;
+    border-color: #cfd4dc;
+    break-inside: avoid;
+  }
+
+  .tab-panel {
+    display: block !important;
+    margin-top: 16px;
+  }
+
+  .print-section-title {
+    display: block;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  details.legal-box > summary::before {
+    transition: none;
+  }
 }
